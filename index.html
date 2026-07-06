@@ -2,7 +2,14 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#ff2ee0">
+<meta name="description" content="Una invitación como Dios manda: cutre-ochentera y con mucho cariño. ¿Quedamos para tomar algo?">
+<meta property="og:title" content="💖 Tienes una invitación especial 💖">
+<meta property="og:description" content="Transmisión desde 1987. Alto secreto. Ábrelo, va con tu nombre.">
+<meta property="og:type" content="website">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>💖 Invitación Especial 💖</title>
 <style>
   :root{
@@ -19,6 +26,7 @@
     padding:0;
     min-height:100%;
     overflow-x:hidden;
+    -webkit-text-size-adjust: 100%;
   }
 
   body{
@@ -27,12 +35,19 @@
     background-size: 400% 400%;
     animation: bgShift 12s ease infinite;
     min-height: 100vh;
+    min-height: 100dvh;
     display:flex;
     align-items:center;
     justify-content:center;
     position:relative;
     color:#fff;
     text-shadow: 2px 2px 0 #ff2ee0, -1px -1px 0 #00fff2;
+    padding:
+      max(0.5rem, env(safe-area-inset-top))
+      max(0.5rem, env(safe-area-inset-right))
+      max(0.5rem, env(safe-area-inset-bottom))
+      max(0.5rem, env(safe-area-inset-left));
+    -webkit-tap-highlight-color: transparent;
   }
 
   @keyframes bgShift{
@@ -206,9 +221,14 @@
     border: none;
     border-radius: 999px;
     padding: 0.9rem 1.8rem;
+    min-height: 48px;
     cursor: pointer;
     box-shadow: 0 5px 0 rgba(0,0,0,0.35);
-    transition: transform 0.15s ease;
+    transition: transform 0.15s ease, left 0.18s ease, top 0.18s ease;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+    -webkit-user-select: none;
+    user-select: none;
   }
 
   button:active{
@@ -306,6 +326,28 @@
   @media (max-width: 380px){
     button{ font-size: 1rem; padding: 0.8rem 1.4rem; }
     #yesBtn{ font-size: 1.1rem; }
+    .card{ padding: 1.6rem 1.1rem; }
+  }
+
+  /* pantallas móviles en landscape (bajitas): que la tarjeta no se corte */
+  @media (max-height: 480px){
+    body{ align-items: flex-start; }
+    .card{
+      margin-top: 0.75rem;
+      max-height: 96dvh;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+  }
+
+  /* respeto por quien prefiere menos movimiento */
+  @media (prefers-reduced-motion: reduce){
+    *, *::before, *::after{
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+    .floaty{ display:none; }
   }
 </style>
 </head>
@@ -383,18 +425,16 @@
     sky.appendChild(el);
   }
 
-  // --- botón "no" esquivo (sin ser molesto: solo escapa en desktop/hover) ---
+  // --- botón "no" esquivo: en desktop huye del hover, en móvil huye del toque ---
   var noBtn = document.getElementById('noBtn');
-  var btnZone = document.querySelector('.btn-zone');
   var dodgeCount = 0;
   var maxDodges = 6;
-  var canHover = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+  var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   function dodge(){
-    if (!canHover || dodgeCount >= maxDodges) return;
+    if (reduceMotion || dodgeCount >= maxDodges) return;
     dodgeCount++;
 
-    var zoneRect = btnZone.getBoundingClientRect();
     var btnRect = noBtn.getBoundingClientRect();
 
     if (!noBtn.classList.contains('escaping')){
@@ -404,7 +444,7 @@
       noBtn.style.margin = '0';
     }
 
-    var margin = 20;
+    var margin = 16;
     var maxX = window.innerWidth - btnRect.width - margin;
     var maxY = window.innerHeight - btnRect.height - margin;
     var newX = Math.max(margin, Math.random() * maxX);
@@ -417,10 +457,20 @@
     noBtn.textContent = mensajes[Math.min(dodgeCount, mensajes.length - 1)];
   }
 
+  // desktop: escapa al pasar el ratón por encima
   noBtn.addEventListener('mouseenter', dodge);
+
+  // móvil: escapa justo al tocar, antes de que el "tap" llegue a completarse
+  noBtn.addEventListener('touchstart', function(e){
+    if (dodgeCount < maxDodges){
+      e.preventDefault();
+      dodge();
+    }
+  }, { passive: false });
+
   noBtn.addEventListener('click', function(e){
     // si por alguna razón consiguen pulsarlo, no pasa nada malo: solo insiste con cariño
-    if (canHover && dodgeCount < maxDodges){
+    if (dodgeCount < maxDodges){
       e.preventDefault();
       dodge();
       return;
