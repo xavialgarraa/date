@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+<title>💖 Invitación Especial 💖</title>
+<style>
+  :root{
+    --neon-pink: #ff2ee0;
+    --neon-cyan: #00fff2;
+    --neon-yellow: #fff700;
+    --neon-purple: #b100ff;
+  }
+
+  *{ box-sizing: border-box; }
+
+  html, body{
+    margin:0;
+    padding:0;
+    min-height:100%;
+    overflow-x:hidden;
+  }
+
+  body{
+    font-family: "Comic Sans MS", "Comic Sans", "Chalkboard SE", cursive, sans-serif;
+    background: linear-gradient(-45deg, #ff2ee0, #7b2ff7, #00fff2, #ff9900);
+    background-size: 400% 400%;
+    animation: bgShift 12s ease infinite;
+    min-height: 100vh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    position:relative;
+    color:#fff;
+    text-shadow: 2px 2px 0 #ff2ee0, -1px -1px 0 #00fff2;
+  }
+
+  @keyframes bgShift{
+    0%{ background-position: 0% 50%; }
+    50%{ background-position: 100% 50%; }
+    100%{ background-position: 0% 50%; }
+  }
+
+  /* estrellitas y corazones flotando */
+  .sky{
+    position: fixed;
+    inset: 0;
+    overflow: hidden;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .floaty{
+    position: absolute;
+    bottom: -10%;
+    font-size: 1.6rem;
+    opacity: 0.85;
+    animation-name: floatUp;
+    animation-timing-function: linear;
+    animation-iteration-count: infinite;
+    filter: drop-shadow(0 0 6px rgba(255,255,255,0.6));
+  }
+
+  @keyframes floatUp{
+    0%{
+      transform: translateY(0) translateX(0) rotate(0deg);
+      opacity: 0;
+    }
+    10%{ opacity: 1; }
+    90%{ opacity: 1; }
+    100%{
+      transform: translateY(-115vh) translateX(var(--drift, 20px)) rotate(360deg);
+      opacity: 0;
+    }
+  }
+
+  .card{
+    position: relative;
+    z-index: 2;
+    background: repeating-linear-gradient(45deg, #1a0033, #1a0033 10px, #2a004d 10px, #2a004d 20px);
+    border: 6px dashed var(--neon-yellow);
+    border-radius: 24px;
+    padding: 2.2rem 1.6rem;
+    max-width: 480px;
+    width: 90%;
+    margin: 1.5rem;
+    text-align: center;
+    box-shadow:
+      0 0 15px var(--neon-pink),
+      0 0 30px var(--neon-cyan),
+      inset 0 0 20px rgba(255,255,255,0.15);
+    animation: cardIn 0.9s cubic-bezier(.2,1.3,.4,1) both;
+  }
+
+  @keyframes cardIn{
+    0%{
+      opacity: 0;
+      transform: translateY(60px) scale(0.85) rotate(-3deg);
+    }
+    60%{
+      opacity: 1;
+      transform: translateY(-8px) scale(1.03) rotate(1deg);
+    }
+    100%{
+      opacity: 1;
+      transform: translateY(0) scale(1) rotate(0deg);
+    }
+  }
+
+  .marquee-wrap{
+    overflow: hidden;
+    white-space: nowrap;
+    border: 3px solid var(--neon-cyan);
+    border-radius: 10px;
+    background: #000;
+    padding: 6px 0;
+    margin-bottom: 1rem;
+  }
+
+  .marquee{
+    display: inline-block;
+    padding-left: 100%;
+    animation: marquee 9s linear infinite;
+    color: var(--neon-yellow);
+    font-weight: bold;
+    font-size: 0.85rem;
+    letter-spacing: 1px;
+    text-shadow: none;
+  }
+
+  @keyframes marquee{
+    0%{ transform: translateX(0); }
+    100%{ transform: translateX(-100%); }
+  }
+
+  .emoji-row{
+    font-size: 2.2rem;
+    animation: wiggle 2.4s ease-in-out infinite;
+    margin-bottom: 0.4rem;
+  }
+
+  @keyframes wiggle{
+    0%, 100%{ transform: rotate(-6deg); }
+    50%{ transform: rotate(6deg); }
+  }
+
+  h1{
+    font-size: clamp(1.4rem, 6vw, 2.1rem);
+    margin: 0.2rem 0 0.6rem;
+    color: var(--neon-yellow);
+    text-shadow:
+      3px 3px 0 var(--neon-purple),
+      -1px -1px 0 var(--neon-cyan);
+    line-height: 1.25;
+  }
+
+  .glitter-name{
+    display: inline-block;
+    background: linear-gradient(90deg, #ff2ee0, #fff700, #00fff2, #ff2ee0);
+    background-size: 300% auto;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    animation: shine 3s linear infinite;
+    text-shadow: none;
+  }
+
+  @keyframes shine{
+    to{ background-position: 300% center; }
+  }
+
+  p.sub{
+    font-size: clamp(0.95rem, 3.6vw, 1.1rem);
+    margin: 0.4rem 0 1.4rem;
+    color: #fff;
+  }
+
+  .stamp{
+    display:inline-block;
+    font-size: 0.75rem;
+    background: var(--neon-pink);
+    color:#1a0033;
+    padding: 3px 10px;
+    border-radius: 999px;
+    transform: rotate(-4deg);
+    margin-bottom: 1rem;
+    font-weight: bold;
+    text-shadow: none;
+    border: 2px solid #fff;
+  }
+
+  .btn-zone{
+    position: relative;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    justify-content: center;
+    align-items: center;
+    min-height: 130px;
+  }
+
+  button{
+    font-family: inherit;
+    font-size: 1.1rem;
+    font-weight: bold;
+    border: none;
+    border-radius: 999px;
+    padding: 0.9rem 1.8rem;
+    cursor: pointer;
+    box-shadow: 0 5px 0 rgba(0,0,0,0.35);
+    transition: transform 0.15s ease;
+  }
+
+  button:active{
+    transform: translateY(3px);
+    box-shadow: 0 2px 0 rgba(0,0,0,0.35);
+  }
+
+  #yesBtn{
+    background: linear-gradient(45deg, #ff2ee0, #ff9900);
+    color: #fff8e1;
+    text-shadow: 1px 1px 0 rgba(0,0,0,0.3);
+    animation: pulse 1.4s ease-in-out infinite;
+    font-size: 1.25rem;
+    padding: 1.1rem 2.4rem;
+  }
+
+  @keyframes pulse{
+    0%, 100%{ transform: scale(1); }
+    50%{ transform: scale(1.06); }
+  }
+
+  #noBtn{
+    background: linear-gradient(45deg, #666, #333);
+    color: #ddd;
+    position: relative;
+  }
+
+  #noBtn.escaping{
+    position: fixed;
+    z-index: 50;
+  }
+
+  footer{
+    margin-top: 1.4rem;
+    font-size: 0.75rem;
+    opacity: 0.85;
+    text-shadow: none;
+    color: #ffdcf7;
+  }
+
+  /* pantalla de confirmación */
+  .confirm{
+    display:none;
+    animation: cardIn 0.6s ease both;
+  }
+
+  .confirm.show{
+    display:block;
+  }
+
+  .hide{
+    display:none !important;
+  }
+
+  .confirm h2{
+    color: var(--neon-yellow);
+    font-size: clamp(1.3rem, 6vw, 1.9rem);
+    text-shadow: 3px 3px 0 var(--neon-purple);
+    margin-bottom: 0.6rem;
+  }
+
+  .disco-emoji{
+    font-size: 3rem;
+    animation: spin 2.5s linear infinite;
+    display:inline-block;
+  }
+
+  @keyframes spin{
+    to{ transform: rotate(360deg); }
+  }
+
+  /* confetti */
+  .confetti-piece{
+    position: fixed;
+    top: -10px;
+    width: 10px;
+    height: 10px;
+    z-index: 100;
+    pointer-events: none;
+    animation-name: confettiFall;
+    animation-timing-function: cubic-bezier(.25,.46,.45,.94);
+  }
+
+  @keyframes confettiFall{
+    0%{
+      transform: translateY(0) rotate(0deg);
+      opacity: 1;
+    }
+    100%{
+      transform: translateY(105vh) rotate(720deg);
+      opacity: 0.9;
+    }
+  }
+
+  @media (max-width: 380px){
+    button{ font-size: 1rem; padding: 0.8rem 1.4rem; }
+    #yesBtn{ font-size: 1.1rem; }
+  }
+</style>
+</head>
+<body>
+
+<div class="sky" id="sky"></div>
+
+<main class="card">
+  <div class="marquee-wrap">
+    <span class="marquee">✨ TRANSMISIÓN ESPECIAL DESDE 1987 ✨ ALTO SECRETO ✨ SOLO PARA TUS OJOS ✨</span>
+  </div>
+
+  <div id="askScreen">
+    <div class="emoji-row">💘 🕺 💫</div>
+    <span class="stamp">URGENTE · CONFIDENCIAL</span>
+    <h1>Ey, <span class="glitter-name" id="nombreTitulo">guapa</span>...</h1>
+    <p class="sub" id="nombreTexto">
+      ¿te apetece que quedemos para tomar algo? Prometo una conversación
+      de mínimo 8/10 en la escala Richter del buen rollo. 🍹✨
+    </p>
+
+    <div class="btn-zone">
+      <button id="yesBtn" type="button">SÍ, OBVIO 💃</button>
+      <button id="noBtn" type="button">no...</button>
+    </div>
+
+    <footer>© 1987-∞ · Este mensaje se autodestruirá si dices que no dos veces seguidas (es broma, no pasa nada) 🙈</footer>
+  </div>
+
+  <div id="confirmScreen" class="confirm">
+    <div class="disco-emoji">🪩</div>
+    <h2>¡RESERVA CONFIRMADA!</h2>
+    <p class="sub" id="confirmTexto">
+      Perfecto, quedamos entonces. Voy a buscar mi mejor chándal de lentejuelas
+      mentalmente. Te escribo para cerrar día y hora 📅💌
+    </p>
+    <div class="emoji-row">🎉 🍸 🎉</div>
+  </div>
+</main>
+
+<script>
+(function(){
+  // --- nombre desde la URL ---
+  var params = new URLSearchParams(window.location.search);
+  var nombre = params.get('nombre');
+  var nombreFinal = (nombre && nombre.trim().length > 0) ? nombre.trim() : 'guapa';
+
+  document.getElementById('nombreTitulo').textContent = nombreFinal;
+  document.title = '💖 Una pregunta para ' + nombreFinal + ' 💖';
+
+  var textoInicial = document.getElementById('nombreTexto');
+  textoInicial.innerHTML = '¿' + escapeHtml(nombreFinal) + ', te apetece que quedemos para tomar algo? ' +
+    'Prometo una conversación de mínimo 8/10 en la escala Richter del buen rollo. 🍹✨';
+
+  function escapeHtml(str){
+    var div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+  }
+
+  // --- fondo con estrellitas y corazones flotando (CSS puro, generado por JS) ---
+  var sky = document.getElementById('sky');
+  var symbols = ['⭐', '💖', '✨', '💫', '💕'];
+  var total = window.innerWidth < 500 ? 18 : 28;
+
+  for (var i = 0; i < total; i++){
+    var el = document.createElement('span');
+    el.className = 'floaty';
+    el.textContent = symbols[Math.floor(Math.random() * symbols.length)];
+    el.style.left = Math.random() * 100 + 'vw';
+    el.style.fontSize = (1 + Math.random() * 1.6) + 'rem';
+    el.style.setProperty('--drift', (Math.random() * 120 - 60) + 'px');
+    el.style.animationDuration = (7 + Math.random() * 9) + 's';
+    el.style.animationDelay = (Math.random() * 10) + 's';
+    sky.appendChild(el);
+  }
+
+  // --- botón "no" esquivo (sin ser molesto: solo escapa en desktop/hover) ---
+  var noBtn = document.getElementById('noBtn');
+  var btnZone = document.querySelector('.btn-zone');
+  var dodgeCount = 0;
+  var maxDodges = 6;
+  var canHover = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+
+  function dodge(){
+    if (!canHover || dodgeCount >= maxDodges) return;
+    dodgeCount++;
+
+    var zoneRect = btnZone.getBoundingClientRect();
+    var btnRect = noBtn.getBoundingClientRect();
+
+    if (!noBtn.classList.contains('escaping')){
+      noBtn.classList.add('escaping');
+      noBtn.style.left = btnRect.left + 'px';
+      noBtn.style.top = btnRect.top + 'px';
+      noBtn.style.margin = '0';
+    }
+
+    var margin = 20;
+    var maxX = window.innerWidth - btnRect.width - margin;
+    var maxY = window.innerHeight - btnRect.height - margin;
+    var newX = Math.max(margin, Math.random() * maxX);
+    var newY = Math.max(margin, Math.random() * maxY);
+
+    noBtn.style.left = newX + 'px';
+    noBtn.style.top = newY + 'px';
+
+    var mensajes = ['no...', '¿segura?', 'piénsalo', 'nooo', '¡casi!', 'jeje no'];
+    noBtn.textContent = mensajes[Math.min(dodgeCount, mensajes.length - 1)];
+  }
+
+  noBtn.addEventListener('mouseenter', dodge);
+  noBtn.addEventListener('click', function(e){
+    // si por alguna razón consiguen pulsarlo, no pasa nada malo: solo insiste con cariño
+    if (canHover && dodgeCount < maxDodges){
+      e.preventDefault();
+      dodge();
+      return;
+    }
+    noBtn.textContent = 'jaja vale, di que sí mejor 😏';
+  });
+
+  // --- confirmación al pulsar "sí" ---
+  var yesBtn = document.getElementById('yesBtn');
+  var askScreen = document.getElementById('askScreen');
+  var confirmScreen = document.getElementById('confirmScreen');
+  var confirmTexto = document.getElementById('confirmTexto');
+
+  yesBtn.addEventListener('click', function(){
+    askScreen.classList.add('hide');
+    confirmScreen.classList.add('show');
+    confirmTexto.innerHTML = 'Perfecto ' + escapeHtml(nombreFinal) + ', quedamos entonces. ' +
+      'Voy a buscar mi mejor chándal de lentejuelas mentalmente. Te escribo para cerrar día y hora 📅💌';
+    launchConfetti();
+  });
+
+  // --- confetti ligero en CSS/JS ---
+  function launchConfetti(){
+    var colors = ['#ff2ee0', '#00fff2', '#fff700', '#b100ff', '#ff9900'];
+    var pieces = 60;
+
+    for (var i = 0; i < pieces; i++){
+      (function(){
+        var piece = document.createElement('div');
+        piece.className = 'confetti-piece';
+        piece.style.left = Math.random() * 100 + 'vw';
+        piece.style.background = colors[Math.floor(Math.random() * colors.length)];
+        piece.style.width = (6 + Math.random() * 8) + 'px';
+        piece.style.height = piece.style.width;
+        piece.style.borderRadius = Math.random() > 0.5 ? '50%' : '2px';
+        piece.style.animationDuration = (2.2 + Math.random() * 1.8) + 's';
+        piece.style.animationDelay = (Math.random() * 0.6) + 's';
+        document.body.appendChild(piece);
+
+        setTimeout(function(){
+          piece.remove();
+        }, 5000);
+      })();
+    }
+  }
+})();
+</script>
+
+</body>
+</html>
