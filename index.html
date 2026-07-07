@@ -3,24 +3,36 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="theme-color" content="#ff2ee0">
-<meta name="description" content="Un billete de embarque como Dios manda: cutre-ochentero y con muchísimo cariño. ¿Te vienes de viaje?">
-<meta property="og:title" content="✈️ Tu billete de embarque especial ✈️">
-<meta property="og:description" content="Vuelo directo al buen rollo. Destino: copas o açaí. Embarque inmediato.">
+<meta name="theme-color" content="#7c3aed">
+<meta name="description" content="Un pase de embarque para invitarte a algo. Açaí, copas o lo que surja.">
+<meta property="og:title" content="✈️ Tienes un pase de embarque">
+<meta property="og:description" content="Destino: açaí, copas o lo que surja. Embarque abierto.">
 <meta property="og:type" content="website">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>✈️ Tu billete de embarque ✈️</title>
+<title>✈️ Tu pase de embarque</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+
 <style>
   :root{
-    --neon-pink: #ff2ee0;
-    --neon-cyan: #00fff2;
-    --neon-yellow: #fff700;
-    --neon-purple: #b100ff;
-    --neon-orange: #ff9900;
-    --paper: #fdf6e3;
-    --ink: #2a1a3a;
-    --stage: #180030;
+    --bg: #0b0a14;
+    --card: #14121f;
+    --card-2: #191726;
+    --ink: #f3f1fb;
+    --muted: #9992b3;
+    --line: rgba(255,255,255,0.09);
+    --violet: #8b5cf6;
+    --pink: #ec4899;
+    --peach: #fb923c;
+    --gold: #facc15;
+    --grad: linear-gradient(120deg, var(--violet), var(--pink) 55%, var(--peach));
+    --radius-lg: 28px;
+    --radius-md: 18px;
+    --font-display: "Space Grotesk", "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+    --font-body: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
   }
 
   *{ box-sizing: border-box; }
@@ -34,25 +46,24 @@
   }
 
   body{
-    font-family: "Comic Sans MS", "Comic Sans", "Chalkboard SE", cursive, sans-serif;
-    background: linear-gradient(180deg, #2d0a5e 0%, #5c1a8c 28%, #b0308f 52%, #ff6a3d 74%, #ffb44d 100%);
+    font-family: var(--font-body);
+    background: var(--bg);
+    color: var(--ink);
     min-height: 100vh;
     min-height: 100dvh;
     display:flex;
     align-items:center;
     justify-content:center;
     position:relative;
-    color:#fff;
-    overflow:hidden;
     padding:
-      max(0.6rem, env(safe-area-inset-top))
-      max(0.6rem, env(safe-area-inset-right))
-      max(0.6rem, env(safe-area-inset-bottom))
-      max(0.6rem, env(safe-area-inset-left));
+      max(1rem, env(safe-area-inset-top))
+      max(1rem, env(safe-area-inset-right))
+      max(1rem, env(safe-area-inset-bottom))
+      max(1rem, env(safe-area-inset-left));
     -webkit-tap-highlight-color: transparent;
   }
 
-  /* ---------- fondo retro: sol synthwave + montañas + estrellas ---------- */
+  /* ---------- fondo: aurora difuminada + grano sutil ---------- */
   .backdrop{
     position: fixed;
     inset: 0;
@@ -61,235 +72,205 @@
     z-index: 0;
   }
 
-  .sun{
+  .blob{
     position: absolute;
-    left: 50%;
-    bottom: 14vh;
-    width: min(60vw, 320px);
-    height: min(60vw, 320px);
-    transform: translateX(-50%);
     border-radius: 50%;
-    overflow: hidden;
-    background: linear-gradient(180deg, #fff700 0%, #ffd23f 25%, #ff9900 55%, #ff2ee0 85%, #b100ff 100%);
-    box-shadow: 0 0 70px 12px rgba(255, 46, 224, 0.55), 0 0 140px 40px rgba(255, 153, 0, 0.35);
+    filter: blur(70px);
+    opacity: 0.55;
+    animation: drift 22s ease-in-out infinite;
+    will-change: transform;
   }
 
-  .sun::after{
-    content: '';
-    position: absolute;
+  .blob-1{
+    width: 60vmax; height: 60vmax;
+    left: -20vmax; top: -22vmax;
+    background: radial-gradient(circle at 30% 30%, var(--violet), transparent 70%);
+    animation-duration: 26s;
+  }
+
+  .blob-2{
+    width: 55vmax; height: 55vmax;
+    right: -18vmax; top: -10vmax;
+    background: radial-gradient(circle at 60% 40%, var(--pink), transparent 70%);
+    animation-duration: 30s;
+    animation-delay: -6s;
+  }
+
+  .blob-3{
+    width: 50vmax; height: 50vmax;
+    left: 50%; bottom: -26vmax;
+    transform: translateX(-50%);
+    background: radial-gradient(circle at 50% 50%, var(--peach), transparent 70%);
+    animation-duration: 24s;
+    animation-delay: -12s;
+  }
+
+  @keyframes drift{
+    0%, 100%{ transform: translate(0, 0) scale(1); }
+    50%{ transform: translate(3vmax, 4vmax) scale(1.08); }
+  }
+
+  .grain{
+    position: fixed;
     inset: 0;
-    top: 46%;
-    background: repeating-linear-gradient(
-      0deg,
-      transparent 0 7px,
-      rgba(45, 10, 94, 0.92) 7px 13px
-    );
+    z-index: 1;
+    opacity: 0.05;
+    pointer-events: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
   }
 
-  .grid-floor{
+  .spark{
     position: absolute;
-    left: 0; right: 0; bottom: 0;
-    height: 24vh;
-    background-image:
-      linear-gradient(rgba(255,46,224,0.55) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(255,46,224,0.55) 1px, transparent 1px);
-    background-size: 40px 24px, 40px 24px;
-    -webkit-mask-image: linear-gradient(180deg, transparent, #000 40%);
-    mask-image: linear-gradient(180deg, transparent, #000 40%);
-    transform: perspective(180px) rotateX(35deg);
-    transform-origin: bottom;
-    opacity: 0.8;
-  }
-
-  .mountains{
-    position: absolute;
-    left: 0; right: 0; bottom: 0;
-    height: 16vh;
-    background: var(--stage);
-    opacity: 0.9;
-    clip-path: polygon(
-      0% 100%, 0% 70%, 8% 82%, 18% 55%, 27% 78%,
-      38% 42%, 50% 74%, 61% 48%, 72% 84%, 83% 58%,
-      93% 76%, 100% 62%, 100% 100%
-    );
-  }
-
-  .plane{
-    position: absolute;
-    top: 8%;
-    left: -10%;
-    font-size: 1.8rem;
-    animation: flyBy 14s linear infinite;
-    filter: drop-shadow(0 0 8px rgba(255,255,255,0.7));
-  }
-
-  @keyframes flyBy{
-    0%{ transform: translateX(0) translateY(0) rotate(6deg); opacity: 0; }
-    8%{ opacity: 1; }
-    50%{ transform: translateX(60vw) translateY(-14px) rotate(6deg); }
-    92%{ opacity: 1; }
-    100%{ transform: translateX(120vw) translateY(6px) rotate(6deg); opacity: 0; }
-  }
-
-  .floaty{
-    position: absolute;
-    bottom: -10%;
-    font-size: 1.6rem;
-    opacity: 0.85;
-    animation-name: floatUp;
-    animation-timing-function: linear;
+    border-radius: 50%;
+    background: #fff;
+    opacity: 0;
+    animation-name: twinkle;
+    animation-timing-function: ease-in-out;
     animation-iteration-count: infinite;
-    filter: drop-shadow(0 0 6px rgba(255,255,255,0.6));
   }
 
-  @keyframes floatUp{
-    0%{ transform: translateY(0) translateX(0) rotate(0deg); opacity: 0; }
-    10%{ opacity: 1; }
-    90%{ opacity: 1; }
-    100%{
-      transform: translateY(-115vh) translateX(var(--drift, 20px)) rotate(360deg);
-      opacity: 0;
-    }
+  @keyframes twinkle{
+    0%, 100%{ opacity: 0; transform: scale(0.6); }
+    50%{ opacity: var(--peak, 0.8); transform: scale(1); }
   }
 
-  /* ---------- escenario (passport cover) ---------- */
+  /* ---------- tarjeta contenedora (glass) ---------- */
   .stage{
     position: relative;
     z-index: 2;
-    background: var(--stage);
-    border-radius: 26px;
-    padding: clamp(0.9rem, 4vw, 1.6rem);
-    max-width: 500px;
-    width: 94%;
-    margin: 0.5rem;
-    box-shadow:
-      0 0 0 2px rgba(255, 247, 0, 0.5),
-      0 10px 0 rgba(0,0,0,0.35),
-      0 0 40px rgba(255, 46, 224, 0.5);
-    animation: cardIn 0.9s cubic-bezier(.2,1.3,.4,1) both;
+    width: 100%;
+    max-width: 420px;
   }
 
-  @keyframes cardIn{
-    0%{ opacity: 0; transform: translateY(60px) scale(0.85) rotate(-3deg); }
-    60%{ opacity: 1; transform: translateY(-8px) scale(1.03) rotate(1deg); }
-    100%{ opacity: 1; transform: translateY(0) scale(1) rotate(0deg); }
-  }
-
-  .stage-tag{
+  .eyebrow{
     text-align:center;
-    font-size: 0.7rem;
-    letter-spacing: 2px;
-    color: var(--neon-yellow);
-    margin-bottom: 0.5rem;
-    text-shadow: 1px 1px 0 var(--neon-purple);
+    font-family: var(--font-body);
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 0.9rem;
+    opacity: 0;
+    animation: fadeUp 0.6s ease 0.05s forwards;
   }
 
-  /* ---------- billete ---------- */
   .ticket{
-    background: var(--paper);
-    color: var(--ink);
-    border-radius: 14px;
+    background: linear-gradient(180deg, var(--card-2), var(--card));
+    border: 1px solid var(--line);
+    border-radius: var(--radius-lg);
+    box-shadow:
+      0 20px 60px rgba(0,0,0,0.55),
+      0 0 0 1px rgba(255,255,255,0.02) inset;
     overflow: hidden;
-    box-shadow: 0 8px 24px rgba(0,0,0,0.4);
-    position: relative;
+    opacity: 0;
+    animation: fadeUp 0.7s cubic-bezier(.22,1,.36,1) 0.15s forwards;
+  }
+
+  @keyframes fadeUp{
+    from{ opacity: 0; transform: translateY(18px); }
+    to{ opacity: 1; transform: translateY(0); }
   }
 
   .ticket-header{
     display:flex;
     align-items:center;
     justify-content:space-between;
-    gap: 0.5rem;
-    padding: 0.6rem 1rem;
-    background: linear-gradient(90deg, var(--neon-pink), var(--neon-purple) 55%, var(--neon-cyan));
-    color: #fff;
-    text-shadow: 1px 1px 0 rgba(0,0,0,0.3);
+    gap: 0.75rem;
+    padding: 1.1rem 1.3rem;
+    border-bottom: 1px solid var(--line);
   }
 
   .brand{
-    font-weight: bold;
-    font-size: clamp(0.8rem, 3.6vw, 1rem);
-    letter-spacing: 0.5px;
-    white-space: nowrap;
+    display:flex;
+    align-items:center;
+    gap: 0.5rem;
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 0.95rem;
+    letter-spacing: 0.01em;
   }
 
-  .class-badge{
-    font-size: 0.65rem;
-    background: rgba(0,0,0,0.25);
-    padding: 3px 8px;
+  .brand .mark{
+    width: 28px; height: 28px;
+    border-radius: 9px;
+    background: var(--grad);
+    display:flex; align-items:center; justify-content:center;
+    font-size: 0.95rem;
+    box-shadow: 0 4px 14px rgba(236,72,153,0.35);
+  }
+
+  .flight-chip{
+    font-family: "Space Grotesk", monospace;
+    font-size: 0.68rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    color: var(--muted);
+    border: 1px solid var(--line);
+    padding: 4px 10px;
     border-radius: 999px;
     white-space: nowrap;
-    border: 1px solid rgba(255,255,255,0.6);
   }
 
   .ticket-body{
-    padding: 1.1rem 1.1rem 0.6rem;
-    text-align: center;
+    padding: 1.5rem 1.3rem 0.4rem;
   }
 
   .ticket-body h1{
-    font-size: clamp(1.25rem, 5.4vw, 1.7rem);
-    margin: 0 0 0.5rem;
-    color: var(--neon-purple);
-    line-height: 1.25;
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: clamp(1.5rem, 6.5vw, 2rem);
+    line-height: 1.15;
+    margin: 0 0 0.55rem;
+    letter-spacing: -0.01em;
   }
 
   .glitter-name{
-    display: inline-block;
-    background: linear-gradient(90deg, #ff2ee0, #ff9900, #00c2b3, #ff2ee0);
-    background-size: 300% auto;
+    background: var(--grad);
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;
-    animation: shine 3s linear infinite;
-  }
-
-  @keyframes shine{
-    to{ background-position: 300% center; }
   }
 
   p.sub{
-    font-size: clamp(0.92rem, 3.6vw, 1.05rem);
-    margin: 0 0 1rem;
-    color: var(--ink);
-    opacity: 0.9;
+    font-size: clamp(0.94rem, 3.6vw, 1.02rem);
+    line-height: 1.5;
+    margin: 0 0 1.5rem;
+    color: var(--muted);
   }
 
   .fields-grid{
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: 0.7rem 0.6rem;
-    text-align: left;
-    margin-bottom: 0.6rem;
+    gap: 1.1rem 1rem;
+    margin-bottom: 1.4rem;
   }
 
-  .field{
-    display: flex;
-    flex-direction: column;
-    border-left: 3px dashed var(--neon-purple);
-    padding-left: 0.5rem;
-  }
+  .field{ display:flex; flex-direction: column; gap: 3px; }
 
   .field .label{
-    font-size: 0.62rem;
-    letter-spacing: 1px;
-    color: #7a5c94;
-    font-weight: bold;
+    font-size: 0.64rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
   }
 
   .field .value{
-    font-size: clamp(0.82rem, 3.2vw, 0.95rem);
-    font-weight: bold;
+    font-family: var(--font-display);
+    font-size: clamp(0.9rem, 3.4vw, 1rem);
+    font-weight: 500;
     color: var(--ink);
   }
 
   .field.wide{ grid-column: 1 / -1; }
 
-  /* línea de perforación con muescas laterales */
+  /* ---------- separador tipo ticket, sutil ---------- */
   .perforation{
     position: relative;
     height: 0;
-    border-top: 3px dashed #b9a8cf;
-    margin: 0.4rem 0;
+    border-top: 1.5px dashed var(--line);
+    margin: 0 1.3rem;
   }
 
   .perforation::before,
@@ -297,90 +278,86 @@
     content: '';
     position: absolute;
     top: 50%;
-    width: 26px;
-    height: 26px;
-    background: var(--stage);
+    width: 22px;
+    height: 22px;
+    background: var(--bg);
     border-radius: 50%;
     transform: translateY(-50%);
   }
 
-  .perforation::before{ left: -13px; }
-  .perforation::after{ right: -13px; }
+  .perforation::before{ left: -1.3rem; }
+  .perforation::after{ right: -1.3rem; }
 
   .ticket-stub{
-    padding: 0.8rem 1.1rem 1.2rem;
+    padding: 1.1rem 1.3rem 1.4rem;
   }
 
   .barcode{
-    height: 34px;
-    margin: 0 auto 1rem;
-    max-width: 260px;
+    height: 28px;
+    margin: 0 auto 1.3rem;
+    max-width: 220px;
     background: repeating-linear-gradient(
       90deg,
-      var(--ink) 0px, var(--ink) 2px,
-      transparent 2px, transparent 4px,
-      var(--ink) 4px, var(--ink) 7px,
-      transparent 7px, transparent 8px,
-      var(--ink) 8px, var(--ink) 11px,
-      transparent 11px, transparent 14px,
-      var(--ink) 14px, var(--ink) 15px,
-      transparent 15px, transparent 18px,
-      var(--ink) 18px, var(--ink) 22px,
-      transparent 22px, transparent 24px
+      var(--muted) 0px, var(--muted) 1.5px,
+      transparent 1.5px, transparent 4px,
+      var(--muted) 4px, var(--muted) 6px,
+      transparent 6px, transparent 7.5px,
+      var(--muted) 7.5px, var(--muted) 10px,
+      transparent 10px, transparent 13px,
+      var(--muted) 13px, var(--muted) 14px,
+      transparent 14px, transparent 17px,
+      var(--muted) 17px, var(--muted) 21px,
+      transparent 21px, transparent 23px
     );
-    opacity: 0.85;
+    opacity: 0.5;
   }
 
   .btn-zone{
     position: relative;
     display: flex;
     flex-wrap: wrap;
-    gap: 1rem;
+    gap: 0.9rem;
     justify-content: center;
     align-items: center;
-    min-height: 110px;
+    min-height: 96px;
   }
 
   button{
-    font-family: inherit;
-    font-size: 1.05rem;
-    font-weight: bold;
+    font-family: var(--font-display);
+    font-size: 1rem;
+    font-weight: 600;
     border: none;
     border-radius: 999px;
-    padding: 0.85rem 1.7rem;
+    padding: 0.85rem 1.6rem;
     min-height: 48px;
     cursor: pointer;
-    box-shadow: 0 5px 0 rgba(0,0,0,0.35);
-    transition: transform 0.15s ease, left 0.18s ease, top 0.18s ease;
+    transition: transform 0.15s ease, box-shadow 0.15s ease, left 0.2s cubic-bezier(.2,.9,.3,1.4), top 0.2s cubic-bezier(.2,.9,.3,1.4);
     -webkit-tap-highlight-color: transparent;
     touch-action: manipulation;
     -webkit-user-select: none;
     user-select: none;
   }
 
-  button:active{
-    transform: translateY(3px);
-    box-shadow: 0 2px 0 rgba(0,0,0,0.35);
-  }
-
   #yesBtn{
-    background: linear-gradient(45deg, #ff2ee0, #ff9900);
-    color: #fff8e1;
-    text-shadow: 1px 1px 0 rgba(0,0,0,0.3);
-    animation: pulse 1.4s ease-in-out infinite;
-    font-size: 1.15rem;
-    padding: 1rem 2.1rem;
+    background: var(--grad);
+    color: #fff;
+    box-shadow: 0 10px 30px rgba(236, 72, 153, 0.4);
   }
 
-  @keyframes pulse{
-    0%, 100%{ transform: scale(1); }
-    50%{ transform: scale(1.06); }
+  #yesBtn:active{
+    transform: translateY(2px);
+    box-shadow: 0 6px 16px rgba(236, 72, 153, 0.35);
   }
 
   #noBtn{
-    background: linear-gradient(45deg, #8a8a8a, #4a4a4a);
-    color: #eee;
+    background: transparent;
+    color: var(--muted);
+    border: 1px solid var(--line);
     position: relative;
+  }
+
+  #noBtn:active{
+    transform: translateY(2px);
   }
 
   #noBtn.escaping{
@@ -389,102 +366,80 @@
   }
 
   footer{
-    margin-top: 0.9rem;
+    margin-top: 1.2rem;
     text-align: center;
-    font-size: 0.72rem;
-    opacity: 0.85;
-    color: #ffdcf7;
+    font-size: 0.74rem;
+    color: var(--muted);
   }
 
-  /* ---------- pantalla de confirmación ---------- */
-  .confirm{
-    display:none;
-  }
-
-  .confirm.show{
-    display:block;
-    animation: cardIn 0.6s ease both;
-  }
-
-  .hide{
-    display:none !important;
-  }
+  /* ---------- confirmación ---------- */
+  .confirm{ display:none; }
+  .confirm.show{ display:block; }
+  .hide{ display:none !important; }
 
   .confirm-body{
-    padding: 1.4rem 1.1rem;
+    padding: 2rem 1.4rem 1.6rem;
     text-align: center;
-    position: relative;
   }
 
-  .stamp-confirm{
-    display: inline-block;
-    border: 4px solid #d1004b;
-    color: #d1004b;
-    font-weight: bold;
-    font-size: clamp(1rem, 4.6vw, 1.3rem);
-    padding: 0.4rem 1rem;
-    border-radius: 10px;
-    transform: rotate(-8deg);
-    margin-bottom: 0.8rem;
-    letter-spacing: 1px;
-    animation: stampIn 0.5s cubic-bezier(.3,1.5,.5,1) both;
+  .check-badge{
+    width: 56px; height: 56px;
+    margin: 0 auto 1.1rem;
+    border-radius: 50%;
+    background: var(--grad);
+    display:flex; align-items:center; justify-content:center;
+    font-size: 1.6rem;
+    box-shadow: 0 10px 30px rgba(236, 72, 153, 0.45);
+    animation: pop 0.5s cubic-bezier(.3,1.6,.4,1) both;
   }
 
-  @keyframes stampIn{
-    0%{ transform: rotate(-8deg) scale(2.4); opacity: 0; }
-    70%{ transform: rotate(-8deg) scale(0.92); opacity: 1; }
-    100%{ transform: rotate(-8deg) scale(1); opacity: 1; }
+  @keyframes pop{
+    0%{ transform: scale(0.3); opacity: 0; }
+    70%{ transform: scale(1.12); opacity: 1; }
+    100%{ transform: scale(1); }
   }
 
   .confirm h2{
-    color: var(--neon-purple);
-    font-size: clamp(1.2rem, 5.4vw, 1.6rem);
-    margin: 0.2rem 0 0.6rem;
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: clamp(1.35rem, 5.6vw, 1.7rem);
+    margin: 0 0 0.6rem;
   }
 
-  .disco-emoji{
-    font-size: 2.6rem;
-    animation: spin 2.5s linear infinite;
-    display:inline-block;
-    margin-top: 0.6rem;
-  }
-
-  @keyframes spin{
-    to{ transform: rotate(360deg); }
-  }
-
-  /* confetti */
+  /* confetti sobrio */
   .confetti-piece{
     position: fixed;
     top: -10px;
     z-index: 100;
     pointer-events: none;
+    border-radius: 3px;
     animation-name: confettiFall;
     animation-timing-function: cubic-bezier(.25,.46,.45,.94);
   }
 
   @keyframes confettiFall{
     0%{ transform: translateY(0) rotate(0deg); opacity: 1; }
-    100%{ transform: translateY(105vh) rotate(720deg); opacity: 0.9; }
+    100%{ transform: translateY(105vh) rotate(600deg); opacity: 0; }
   }
 
-  @media (max-width: 380px){
-    button{ font-size: 0.95rem; padding: 0.75rem 1.3rem; }
-    #yesBtn{ font-size: 1.05rem; }
-    .fields-grid{ grid-template-columns: 1fr 1fr; gap: 0.55rem 0.5rem; }
-    .perforation::before{ left: -10px; width: 20px; height: 20px; }
-    .perforation::after{ right: -10px; width: 20px; height: 20px; }
+  @media (max-width: 360px){
+    .fields-grid{ grid-template-columns: 1fr 1fr; gap: 0.9rem 0.8rem; }
+    .ticket-body{ padding: 1.3rem 1.1rem 0.4rem; }
+    .ticket-stub{ padding: 1rem 1.1rem 1.3rem; }
+    .perforation{ margin: 0 1.1rem; }
   }
 
-  @media (max-width: 340px){
+  @media (max-width: 320px){
     .fields-grid{ grid-template-columns: 1fr; }
   }
 
-  /* landscape móvil bajito: que no se corte */
   @media (max-height: 480px){
     body{ align-items: flex-start; }
     .stage{
-      margin-top: 0.6rem;
+      margin-top: 0.5rem;
+      max-height: 96dvh;
+    }
+    .ticket{
       max-height: 96dvh;
       overflow-y: auto;
       -webkit-overflow-scrolling: touch;
@@ -497,64 +452,58 @@
       animation-iteration-count: 1 !important;
       transition-duration: 0.01ms !important;
     }
-    .floaty, .plane{ display:none; }
+    .blob{ display:none; }
   }
 </style>
 </head>
 <body>
 
 <div class="backdrop" id="backdrop">
-  <div class="sun"></div>
-  <div class="grid-floor"></div>
-  <div class="mountains"></div>
-  <div class="plane">✈️</div>
+  <div class="blob blob-1"></div>
+  <div class="blob blob-2"></div>
+  <div class="blob blob-3"></div>
 </div>
+<div class="grain"></div>
 
 <main class="stage">
-  <div class="stage-tag">✧ EMBARQUE PRIORITARIO ✧ NO TRANSFERIBLE ✧ SOLO IDA (DE MOMENTO) ✧</div>
+  <div class="eyebrow">Pase de embarque · Sin escalas</div>
 
   <div class="ticket">
     <div class="ticket-header">
-      <span class="brand">✈️ AMOR AIRLINES</span>
-      <span class="class-badge">CLASE PREFERENTE</span>
+      <div class="brand">
+        <span class="mark">✈️</span>
+        <span>Amor Air</span>
+      </div>
+      <span class="flight-chip" id="flightChip">AM 2026</span>
     </div>
 
     <div id="askScreen">
       <div class="ticket-body">
-        <h1>Embarque para <span class="glitter-name" id="nombreTitulo">guapa</span></h1>
+        <h1>¿Nos vamos, <span class="glitter-name" id="nombreTitulo">guapa</span>?</h1>
         <p class="sub" id="nombreTexto">
-          ¿Te apuntas a este viaje? Empezamos suave: unas copas o un açaí,
-          lo que más rime con el buen rollo. 🍹🥣✈️
+          Un açaí, unas copas... o lo que surja. Tú decides el destino, yo llevo la excusa.
         </p>
 
         <div class="fields-grid">
           <div class="field">
-            <span class="label">PASAJERO</span>
-            <span class="value" id="fieldPasajero">GUAPA</span>
+            <span class="label">Pasajero</span>
+            <span class="value" id="fieldPasajero">Guapa</span>
           </div>
           <div class="field">
-            <span class="label">VUELO Nº</span>
-            <span class="value">AM0R-2026</span>
+            <span class="label">Clase</span>
+            <span class="value">Sin prisa</span>
           </div>
           <div class="field">
-            <span class="label">ORIGEN</span>
-            <span class="value">TU SOFÁ</span>
+            <span class="label">Desde</span>
+            <span class="value">Aquí</span>
           </div>
           <div class="field">
-            <span class="label">DESTINO</span>
-            <span class="value">COPAS O AÇAÍ</span>
-          </div>
-          <div class="field">
-            <span class="label">PUERTA</span>
-            <span class="value">LA QUE TÚ DIGAS</span>
-          </div>
-          <div class="field">
-            <span class="label">ASIENTO</span>
-            <span class="value">A TU LADO</span>
+            <span class="label">Hasta</span>
+            <span class="value">Donde tú digas</span>
           </div>
           <div class="field wide">
-            <span class="label">FECHA / HORA</span>
-            <span class="value">A CONCRETAR (SIN PRISA, PERO CON GANAS)</span>
+            <span class="label">Fecha y hora</span>
+            <span class="value">A concretar, sin agobios</span>
           </div>
         </div>
       </div>
@@ -564,29 +513,24 @@
       <div class="ticket-stub">
         <div class="barcode"></div>
         <div class="btn-zone">
-          <button id="yesBtn" type="button">EMBARCAR 🛫</button>
-          <button id="noBtn" type="button">cancelar vuelo...</button>
+          <button id="yesBtn" type="button">Confirmar embarque</button>
+          <button id="noBtn" type="button">Paso, gracias</button>
         </div>
       </div>
     </div>
 
     <div id="confirmScreen" class="confirm">
       <div class="confirm-body">
-        <div class="stamp-confirm">✅ EMBARQUE CONFIRMADO</div>
-        <div class="disco-emoji">🪩</div>
-        <h2>¡Buen viaje, <span id="nombreConfirm">guapa</span>!</h2>
+        <div class="check-badge">✓</div>
+        <h2>Embarque confirmado, <span id="nombreConfirm">guapa</span></h2>
         <p class="sub" id="confirmTexto">
-          Reserva hecha. Voy sacando el chándal de lentejuelas para la ocasión.
-          Te escribo para cerrar puerta de embarque real (día y hora) 📅💌
+          Te escribo para cuadrar día y hora. Prepárate para el açaí (o las copas, aún sin decidir) 🌇
         </p>
-        <div class="ticket-stub" style="padding-top:0;">
-          <div class="barcode"></div>
-        </div>
       </div>
     </div>
   </div>
 
-  <footer>© 1987-∞ AMOR AIRLINES · Este billete se autodestruye si dices que no dos veces seguidas (es broma, no pasa nada) 🙈</footer>
+  <footer>Sin cambios de última hora. Solo ganas.</footer>
 </main>
 
 <script>
@@ -604,34 +548,38 @@
 
   document.getElementById('nombreTitulo').textContent = nombreFinal;
   document.getElementById('nombreConfirm').textContent = nombreFinal;
-  document.getElementById('fieldPasajero').textContent = nombreFinal.toUpperCase();
-  document.title = '✈️ Billete de embarque para ' + nombreFinal + ' ✈️';
+  document.getElementById('fieldPasajero').textContent = nombreFinal;
+  document.title = '✈️ Pase de embarque para ' + nombreFinal;
 
   var textoInicial = document.getElementById('nombreTexto');
-  textoInicial.innerHTML = '¿' + escapeHtml(nombreFinal) + ', te apuntas a este viaje? Empezamos suave: ' +
-    'unas copas o un açaí, lo que más rime con el buen rollo. 🍹🥣✈️';
+  textoInicial.textContent = 'Un açaí, unas copas... o lo que surja. Tú decides el destino, yo llevo la excusa.';
 
-  // --- fondo con estrellitas y corazones flotando (CSS puro, generado por JS) ---
+  var flightChip = document.getElementById('flightChip');
+  var code = nombreFinal.replace(/[^a-zA-Z]/g, '').slice(0, 2).toUpperCase() || 'AM';
+  flightChip.textContent = code + ' ' + (2000 + Math.floor(Math.random() * 900));
+
+  // --- chispitas sutiles de fondo ---
   var sky = document.getElementById('backdrop');
-  var symbols = ['⭐', '💖', '✨', '💫', '💕'];
-  var total = window.innerWidth < 500 ? 16 : 26;
+  var total = window.innerWidth < 500 ? 14 : 22;
 
   for (var i = 0; i < total; i++){
     var el = document.createElement('span');
-    el.className = 'floaty';
-    el.textContent = symbols[Math.floor(Math.random() * symbols.length)];
+    el.className = 'spark';
+    var size = 1.5 + Math.random() * 2.5;
+    el.style.width = size + 'px';
+    el.style.height = size + 'px';
     el.style.left = Math.random() * 100 + 'vw';
-    el.style.fontSize = (1 + Math.random() * 1.6) + 'rem';
-    el.style.setProperty('--drift', (Math.random() * 120 - 60) + 'px');
-    el.style.animationDuration = (7 + Math.random() * 9) + 's';
-    el.style.animationDelay = (Math.random() * 10) + 's';
+    el.style.top = Math.random() * 100 + 'vh';
+    el.style.setProperty('--peak', (0.3 + Math.random() * 0.5).toFixed(2));
+    el.style.animationDuration = (2.5 + Math.random() * 3.5) + 's';
+    el.style.animationDelay = (Math.random() * 5) + 's';
     sky.appendChild(el);
   }
 
-  // --- botón "cancelar" esquivo: en desktop huye del hover, en móvil huye del toque ---
+  // --- botón "paso, gracias" esquivo: hover en desktop, toque en móvil ---
   var noBtn = document.getElementById('noBtn');
   var dodgeCount = 0;
-  var maxDodges = 6;
+  var maxDodges = 5;
   var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   function dodge(){
@@ -656,7 +604,7 @@
     noBtn.style.left = newX + 'px';
     noBtn.style.top = newY + 'px';
 
-    var mensajes = ['cancelar vuelo...', '¿en serio?', 'lo pienso...', 'nooo', '¡casi despega!', 'jeje no'];
+    var mensajes = ['Paso, gracias', '¿Seguro?', 'Lo pienso...', 'Casi...', 'Vale, ya vale 😏'];
     noBtn.textContent = mensajes[Math.min(dodgeCount, mensajes.length - 1)];
   }
 
@@ -675,10 +623,10 @@
       dodge();
       return;
     }
-    noBtn.textContent = 'jaja vale, mejor embarca 😏';
+    noBtn.textContent = 'Vale, mejor confirmo 😌';
   });
 
-  // --- confirmación al pulsar "embarcar" ---
+  // --- confirmación al pulsar "confirmar embarque" ---
   var yesBtn = document.getElementById('yesBtn');
   var askScreen = document.getElementById('askScreen');
   var confirmScreen = document.getElementById('confirmScreen');
@@ -687,38 +635,31 @@
   yesBtn.addEventListener('click', function(){
     askScreen.classList.add('hide');
     confirmScreen.classList.add('show');
-    confirmTexto.innerHTML = 'Reserva hecha, ' + escapeHtml(nombreFinal) + '. Voy sacando el chándal de ' +
-      'lentejuelas para la ocasión. Te escribo para cerrar puerta de embarque real (día y hora) 📅💌';
+    confirmTexto.textContent = 'Te escribo para cuadrar día y hora, ' + nombreFinal + '. Prepárate para el açaí (o las copas, aún sin decidir) 🌇';
     launchConfetti();
   });
 
-  // --- confetti ligero en CSS/JS ---
+  // --- confetti sobrio ---
   function launchConfetti(){
     if (reduceMotion) return;
-    var colors = ['#ff2ee0', '#00fff2', '#fff700', '#b100ff', '#ff9900'];
-    var emojis = ['✈️', '💖', '🎉', '⭐'];
-    var pieces = 50;
+    var colors = ['#8b5cf6', '#ec4899', '#fb923c', '#facc15'];
+    var pieces = 36;
 
     for (var i = 0; i < pieces; i++){
       (function(){
         var piece = document.createElement('div');
         piece.className = 'confetti-piece';
         piece.style.left = Math.random() * 100 + 'vw';
-        piece.style.animationDuration = (2.2 + Math.random() * 1.8) + 's';
-        piece.style.animationDelay = (Math.random() * 0.6) + 's';
-
-        if (Math.random() < 0.35){
-          piece.textContent = emojis[Math.floor(Math.random() * emojis.length)];
-          piece.style.fontSize = (0.9 + Math.random() * 0.8) + 'rem';
-        } else {
-          piece.style.width = (6 + Math.random() * 8) + 'px';
-          piece.style.height = piece.style.width;
-          piece.style.background = colors[Math.floor(Math.random() * colors.length)];
-          piece.style.borderRadius = Math.random() > 0.5 ? '50%' : '2px';
-        }
+        piece.style.animationDuration = (2.2 + Math.random() * 1.6) + 's';
+        piece.style.animationDelay = (Math.random() * 0.5) + 's';
+        var size = 5 + Math.random() * 6;
+        piece.style.width = size + 'px';
+        piece.style.height = size + 'px';
+        piece.style.background = colors[Math.floor(Math.random() * colors.length)];
+        piece.style.borderRadius = Math.random() > 0.5 ? '50%' : '3px';
 
         document.body.appendChild(piece);
-        setTimeout(function(){ piece.remove(); }, 5000);
+        setTimeout(function(){ piece.remove(); }, 4500);
       })();
     }
   }
