@@ -4,13 +4,13 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#7c3aed">
-<meta name="description" content="Un pase de embarque para invitarte a algo. Açaí, copas o lo que surja.">
-<meta property="og:title" content="✈️ Tienes un pase de embarque">
-<meta property="og:description" content="Destino: açaí, copas o lo que surja. Embarque abierto.">
+<meta name="description" content="Un pase de embarque para invitarte a por un açaí.">
+<meta property="og:title" content="🍇 Tienes un pase de embarque">
+<meta property="og:description" content="Destino: açaí. Embarque abierto, sin escalas.">
 <meta property="og:type" content="website">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>✈️ Tu pase de embarque</title>
+<title>🍇 Tu pase de embarque</title>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -30,7 +30,6 @@
     --gold: #facc15;
     --grad: linear-gradient(120deg, var(--violet), var(--pink) 55%, var(--peach));
     --radius-lg: 28px;
-    --radius-md: 18px;
     --font-display: "Space Grotesk", "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
     --font-body: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
   }
@@ -61,6 +60,7 @@
       max(1rem, env(safe-area-inset-bottom))
       max(1rem, env(safe-area-inset-left));
     -webkit-tap-highlight-color: transparent;
+    perspective: 1200px;
   }
 
   /* ---------- fondo: aurora difuminada + grano sutil ---------- */
@@ -134,7 +134,7 @@
     50%{ opacity: var(--peak, 0.8); transform: scale(1); }
   }
 
-  /* ---------- tarjeta contenedora (glass) ---------- */
+  /* ---------- tarjeta contenedora ---------- */
   .stage{
     position: relative;
     z-index: 2;
@@ -143,6 +143,7 @@
   }
 
   .eyebrow{
+    position: relative;
     text-align:center;
     font-family: var(--font-body);
     font-size: 0.72rem;
@@ -150,12 +151,28 @@
     letter-spacing: 0.14em;
     text-transform: uppercase;
     color: var(--muted);
-    margin-bottom: 0.9rem;
+    margin-bottom: 1.1rem;
     opacity: 0;
     animation: fadeUp 0.6s ease 0.05s forwards;
   }
 
+  .eyebrow .underline{
+    display:block;
+    width: 46px;
+    height: 2px;
+    margin: 8px auto 0;
+    border-radius: 2px;
+    background: var(--grad);
+    background-size: 200% auto;
+    animation: shine 3s linear infinite;
+  }
+
+  @keyframes shine{
+    to{ background-position: 200% center; }
+  }
+
   .ticket{
+    position: relative;
     background: linear-gradient(180deg, var(--card-2), var(--card));
     border: 1px solid var(--line);
     border-radius: var(--radius-lg);
@@ -164,8 +181,23 @@
       0 0 0 1px rgba(255,255,255,0.02) inset;
     overflow: hidden;
     opacity: 0;
+    transform-style: preserve-3d;
     animation: fadeUp 0.7s cubic-bezier(.22,1,.36,1) 0.15s forwards;
+    transition: transform 0.25s cubic-bezier(.2,.8,.3,1);
+    will-change: transform;
   }
+
+  .ticket-gloss{
+    position: absolute;
+    inset: 0;
+    z-index: 5;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    background: radial-gradient(420px circle at var(--mx, 50%) var(--my, 30%), rgba(255,255,255,0.14), transparent 62%);
+  }
+
+  .ticket.tilting .ticket-gloss{ opacity: 1; }
 
   @keyframes fadeUp{
     from{ opacity: 0; transform: translateY(18px); }
@@ -210,6 +242,7 @@
     padding: 4px 10px;
     border-radius: 999px;
     white-space: nowrap;
+    font-variant-numeric: tabular-nums;
   }
 
   .ticket-body{
@@ -223,13 +256,17 @@
     line-height: 1.15;
     margin: 0 0 0.55rem;
     letter-spacing: -0.01em;
+    opacity: 0;
+    animation: fadeUp 0.6s ease 0.3s forwards;
   }
 
   .glitter-name{
     background: var(--grad);
+    background-size: 260% auto;
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;
+    animation: shine 4s linear infinite;
   }
 
   p.sub{
@@ -237,6 +274,8 @@
     line-height: 1.5;
     margin: 0 0 1.5rem;
     color: var(--muted);
+    opacity: 0;
+    animation: fadeUp 0.6s ease 0.4s forwards;
   }
 
   .fields-grid{
@@ -246,7 +285,20 @@
     margin-bottom: 1.4rem;
   }
 
-  .field{ display:flex; flex-direction: column; gap: 3px; }
+  .field{
+    display:flex;
+    flex-direction: column;
+    gap: 3px;
+    opacity: 0;
+    animation: fadeUp 0.5s ease forwards;
+  }
+
+  .field:nth-child(1){ animation-delay: 0.48s; }
+  .field:nth-child(2){ animation-delay: 0.54s; }
+  .field:nth-child(3){ animation-delay: 0.60s; }
+  .field:nth-child(4){ animation-delay: 0.66s; }
+  .field:nth-child(5){ animation-delay: 0.72s; }
+  .field:nth-child(6){ animation-delay: 0.78s; }
 
   .field .label{
     font-size: 0.64rem;
@@ -265,12 +317,14 @@
 
   .field.wide{ grid-column: 1 / -1; }
 
-  /* ---------- separador tipo ticket, sutil ---------- */
+  /* ---------- separador tipo ticket ---------- */
   .perforation{
     position: relative;
     height: 0;
     border-top: 1.5px dashed var(--line);
     margin: 0 1.3rem;
+    opacity: 0;
+    animation: fadeUp 0.5s ease 0.86s forwards;
   }
 
   .perforation::before,
@@ -290,12 +344,17 @@
 
   .ticket-stub{
     padding: 1.1rem 1.3rem 1.4rem;
+    opacity: 0;
+    animation: fadeUp 0.5s ease 0.92s forwards;
   }
 
   .barcode{
+    position: relative;
     height: 28px;
     margin: 0 auto 1.3rem;
     max-width: 220px;
+    overflow: hidden;
+    border-radius: 2px;
     background: repeating-linear-gradient(
       90deg,
       var(--muted) 0px, var(--muted) 1.5px,
@@ -312,6 +371,23 @@
     opacity: 0.5;
   }
 
+  .barcode::after{
+    content: '';
+    position: absolute;
+    top: 0; bottom: 0;
+    left: -40%;
+    width: 35%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.9), transparent);
+    animation: scanLine 3.6s ease-in-out infinite;
+    animation-delay: 1.4s;
+  }
+
+  @keyframes scanLine{
+    0%{ left: -40%; }
+    45%{ left: 105%; }
+    100%{ left: 105%; }
+  }
+
   .btn-zone{
     position: relative;
     display: flex;
@@ -323,6 +399,7 @@
   }
 
   button{
+    position: relative;
     font-family: var(--font-display);
     font-size: 1rem;
     font-weight: 600;
@@ -331,6 +408,7 @@
     padding: 0.85rem 1.6rem;
     min-height: 48px;
     cursor: pointer;
+    overflow: hidden;
     transition: transform 0.15s ease, box-shadow 0.15s ease, left 0.2s cubic-bezier(.2,.9,.3,1.4), top 0.2s cubic-bezier(.2,.9,.3,1.4);
     -webkit-tap-highlight-color: transparent;
     touch-action: manipulation;
@@ -338,22 +416,43 @@
     user-select: none;
   }
 
+  .ripple{
+    position: absolute;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.55);
+    transform: scale(0);
+    animation: rippleOut 0.6s ease-out forwards;
+    pointer-events: none;
+  }
+
+  @keyframes rippleOut{
+    to{ transform: scale(1); opacity: 0; }
+  }
+
   #yesBtn{
     background: var(--grad);
+    background-size: 220% auto;
     color: #fff;
     box-shadow: 0 10px 30px rgba(236, 72, 153, 0.4);
+    animation: fadeUp 0.5s ease 0.98s forwards, glow 3.5s ease-in-out 1.6s infinite;
+    opacity: 0;
+  }
+
+  @keyframes glow{
+    0%, 100%{ box-shadow: 0 10px 30px rgba(236, 72, 153, 0.4); background-position: 0% center; }
+    50%{ box-shadow: 0 10px 40px rgba(139, 92, 246, 0.55); background-position: 100% center; }
   }
 
   #yesBtn:active{
     transform: translateY(2px);
-    box-shadow: 0 6px 16px rgba(236, 72, 153, 0.35);
   }
 
   #noBtn{
     background: transparent;
     color: var(--muted);
     border: 1px solid var(--line);
-    position: relative;
+    opacity: 0;
+    animation: fadeUp 0.5s ease 1.04s forwards;
   }
 
   #noBtn:active{
@@ -370,6 +469,8 @@
     text-align: center;
     font-size: 0.74rem;
     color: var(--muted);
+    opacity: 0;
+    animation: fadeUp 0.6s ease 1.1s forwards;
   }
 
   /* ---------- confirmación ---------- */
@@ -394,9 +495,9 @@
   }
 
   @keyframes pop{
-    0%{ transform: scale(0.3); opacity: 0; }
-    70%{ transform: scale(1.12); opacity: 1; }
-    100%{ transform: scale(1); }
+    0%{ transform: scale(0.3) rotate(-20deg); opacity: 0; }
+    70%{ transform: scale(1.15) rotate(4deg); opacity: 1; }
+    100%{ transform: scale(1) rotate(0deg); }
   }
 
   .confirm h2{
@@ -404,9 +505,15 @@
     font-weight: 600;
     font-size: clamp(1.35rem, 5.6vw, 1.7rem);
     margin: 0 0 0.6rem;
+    opacity: 0;
+    animation: fadeUp 0.5s ease 0.15s forwards;
   }
 
-  /* confetti sobrio */
+  .confirm p.sub{
+    animation-delay: 0.25s;
+  }
+
+  /* confetti */
   .confetti-piece{
     position: fixed;
     top: -10px;
@@ -446,6 +553,10 @@
     }
   }
 
+  @media (hover: none){
+    .ticket{ transition: transform 0.4s ease; }
+  }
+
   @media (prefers-reduced-motion: reduce){
     *, *::before, *::after{
       animation-duration: 0.01ms !important;
@@ -453,6 +564,9 @@
       transition-duration: 0.01ms !important;
     }
     .blob{ display:none; }
+    .field, .perforation, .ticket-stub, #yesBtn, #noBtn, footer, .eyebrow, .ticket-body h1, p.sub, .confirm h2{
+      opacity: 1 !important;
+    }
   }
 </style>
 </head>
@@ -466,22 +580,23 @@
 <div class="grain"></div>
 
 <main class="stage">
-  <div class="eyebrow">Pase de embarque · Sin escalas</div>
+  <div class="eyebrow">Pase de embarque · Destino açaí<span class="underline"></span></div>
 
-  <div class="ticket">
+  <div class="ticket" id="ticket">
+    <div class="ticket-gloss"></div>
     <div class="ticket-header">
       <div class="brand">
-        <span class="mark">✈️</span>
-        <span>Amor Air</span>
+        <span class="mark">🍇</span>
+        <span>Açaí Air</span>
       </div>
-      <span class="flight-chip" id="flightChip">AM 2026</span>
+      <span class="flight-chip" id="flightChip">AC 0000</span>
     </div>
 
     <div id="askScreen">
       <div class="ticket-body">
-        <h1>¿Nos vamos, <span class="glitter-name" id="nombreTitulo">guapa</span>?</h1>
+        <h1>¿Vamos a por un açaí, <span class="glitter-name" id="nombreTitulo">guapa</span>?</h1>
         <p class="sub" id="nombreTexto">
-          Un açaí, unas copas... o lo que surja. Tú decides el destino, yo llevo la excusa.
+          Plan sin complicaciones: nos plantamos, pedimos el bowl más cargado que tengan y ya está.
         </p>
 
         <div class="fields-grid">
@@ -490,20 +605,20 @@
             <span class="value" id="fieldPasajero">Guapa</span>
           </div>
           <div class="field">
-            <span class="label">Clase</span>
-            <span class="value">Sin prisa</span>
+            <span class="label">Pedido</span>
+            <span class="value">Bowl grande</span>
           </div>
           <div class="field">
-            <span class="label">Desde</span>
-            <span class="value">Aquí</span>
+            <span class="label">Topping</span>
+            <span class="value">Sorpréndeme</span>
           </div>
           <div class="field">
-            <span class="label">Hasta</span>
-            <span class="value">Donde tú digas</span>
+            <span class="label">Asiento</span>
+            <span class="value">El de la ventana</span>
           </div>
           <div class="field wide">
             <span class="label">Fecha y hora</span>
-            <span class="value">A concretar, sin agobios</span>
+            <span class="value">Cuando tú digas, sin agobios</span>
           </div>
         </div>
       </div>
@@ -513,7 +628,7 @@
       <div class="ticket-stub">
         <div class="barcode"></div>
         <div class="btn-zone">
-          <button id="yesBtn" type="button">Confirmar embarque</button>
+          <button id="yesBtn" type="button">Voy a por el açaí</button>
           <button id="noBtn" type="button">Paso, gracias</button>
         </div>
       </div>
@@ -522,19 +637,21 @@
     <div id="confirmScreen" class="confirm">
       <div class="confirm-body">
         <div class="check-badge">✓</div>
-        <h2>Embarque confirmado, <span id="nombreConfirm">guapa</span></h2>
+        <h2>Açaí confirmado, <span id="nombreConfirm">guapa</span></h2>
         <p class="sub" id="confirmTexto">
-          Te escribo para cuadrar día y hora. Prepárate para el açaí (o las copas, aún sin decidir) 🌇
+          Te escribo para cuadrar día y hora. Lleva cuchara y ganas 🍇🥄
         </p>
       </div>
     </div>
   </div>
 
-  <footer>Sin cambios de última hora. Solo ganas.</footer>
+  <footer>Sin cambios de última hora. Solo hambre.</footer>
 </main>
 
 <script>
 (function(){
+  var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
   // --- nombre desde la URL ---
   var params = new URLSearchParams(window.location.search);
   var nombre = params.get('nombre');
@@ -549,14 +666,32 @@
   document.getElementById('nombreTitulo').textContent = nombreFinal;
   document.getElementById('nombreConfirm').textContent = nombreFinal;
   document.getElementById('fieldPasajero').textContent = nombreFinal;
-  document.title = '✈️ Pase de embarque para ' + nombreFinal;
+  document.title = '🍇 Pase de embarque para ' + nombreFinal;
 
   var textoInicial = document.getElementById('nombreTexto');
-  textoInicial.textContent = 'Un açaí, unas copas... o lo que surja. Tú decides el destino, yo llevo la excusa.';
+  textoInicial.textContent = 'Plan sin complicaciones: nos plantamos, pedimos el bowl más cargado que tengan y ya está.';
 
+  // --- código de vuelo tipo odómetro ---
   var flightChip = document.getElementById('flightChip');
-  var code = nombreFinal.replace(/[^a-zA-Z]/g, '').slice(0, 2).toUpperCase() || 'AM';
-  flightChip.textContent = code + ' ' + (2000 + Math.floor(Math.random() * 900));
+  var code = (nombreFinal.replace(/[^a-zA-Z]/g, '').slice(0, 2).toUpperCase() || 'AC');
+  var finalNum = 1000 + Math.floor(Math.random() * 8999);
+  var finalText = code + ' ' + finalNum;
+
+  if (reduceMotion){
+    flightChip.textContent = finalText;
+  } else {
+    var ticks = 0;
+    var maxTicks = 14;
+    var odometer = setInterval(function(){
+      ticks++;
+      if (ticks >= maxTicks){
+        clearInterval(odometer);
+        flightChip.textContent = finalText;
+        return;
+      }
+      flightChip.textContent = code + ' ' + (1000 + Math.floor(Math.random() * 8999));
+    }, 55);
+  }
 
   // --- chispitas sutiles de fondo ---
   var sky = document.getElementById('backdrop');
@@ -576,11 +711,54 @@
     sky.appendChild(el);
   }
 
+  // --- tilt 3D + brillo siguiendo el puntero ---
+  var ticket = document.getElementById('ticket');
+  var canHover = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+
+  if (!reduceMotion && canHover){
+    var maxTilt = 7;
+
+    ticket.addEventListener('pointermove', function(e){
+      var rect = ticket.getBoundingClientRect();
+      var px = (e.clientX - rect.left) / rect.width;
+      var py = (e.clientY - rect.top) / rect.height;
+
+      var rotY = (px - 0.5) * maxTilt * 2;
+      var rotX = (0.5 - py) * maxTilt * 2;
+
+      ticket.style.transform = 'rotateX(' + rotX.toFixed(2) + 'deg) rotateY(' + rotY.toFixed(2) + 'deg) translateY(-2px)';
+      ticket.style.setProperty('--mx', (px * 100).toFixed(1) + '%');
+      ticket.style.setProperty('--my', (py * 100).toFixed(1) + '%');
+      ticket.classList.add('tilting');
+    });
+
+    ticket.addEventListener('pointerleave', function(){
+      ticket.style.transform = 'rotateX(0deg) rotateY(0deg) translateY(0)';
+      ticket.classList.remove('tilting');
+    });
+  }
+
+  // --- ripple en los botones ---
+  function attachRipple(btn){
+    btn.addEventListener('pointerdown', function(e){
+      if (reduceMotion) return;
+      var rect = btn.getBoundingClientRect();
+      var size = Math.max(rect.width, rect.height) * 1.6;
+      var ripple = document.createElement('span');
+      ripple.className = 'ripple';
+      ripple.style.width = size + 'px';
+      ripple.style.height = size + 'px';
+      ripple.style.left = ((e.clientX || rect.left + rect.width / 2) - rect.left - size / 2) + 'px';
+      ripple.style.top = ((e.clientY || rect.top + rect.height / 2) - rect.top - size / 2) + 'px';
+      btn.appendChild(ripple);
+      setTimeout(function(){ ripple.remove(); }, 650);
+    });
+  }
+
   // --- botón "paso, gracias" esquivo: hover en desktop, toque en móvil ---
   var noBtn = document.getElementById('noBtn');
   var dodgeCount = 0;
   var maxDodges = 5;
-  var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   function dodge(){
     if (reduceMotion || dodgeCount >= maxDodges) return;
@@ -623,27 +801,32 @@
       dodge();
       return;
     }
-    noBtn.textContent = 'Vale, mejor confirmo 😌';
+    noBtn.textContent = 'Vale, mejor voy 😌';
   });
 
-  // --- confirmación al pulsar "confirmar embarque" ---
+  attachRipple(noBtn);
+
+  // --- confirmación al pulsar "voy a por el açaí" ---
   var yesBtn = document.getElementById('yesBtn');
   var askScreen = document.getElementById('askScreen');
   var confirmScreen = document.getElementById('confirmScreen');
   var confirmTexto = document.getElementById('confirmTexto');
 
+  attachRipple(yesBtn);
+
   yesBtn.addEventListener('click', function(){
     askScreen.classList.add('hide');
     confirmScreen.classList.add('show');
-    confirmTexto.textContent = 'Te escribo para cuadrar día y hora, ' + nombreFinal + '. Prepárate para el açaí (o las copas, aún sin decidir) 🌇';
+    confirmTexto.textContent = 'Te escribo para cuadrar día y hora, ' + nombreFinal + '. Lleva cuchara y ganas 🍇🥄';
     launchConfetti();
   });
 
-  // --- confetti sobrio ---
+  // --- confetti temático de açaí ---
   function launchConfetti(){
     if (reduceMotion) return;
     var colors = ['#8b5cf6', '#ec4899', '#fb923c', '#facc15'];
-    var pieces = 36;
+    var emojis = ['🍇', '🫐', '🍌', '✨'];
+    var pieces = 40;
 
     for (var i = 0; i < pieces; i++){
       (function(){
@@ -652,11 +835,17 @@
         piece.style.left = Math.random() * 100 + 'vw';
         piece.style.animationDuration = (2.2 + Math.random() * 1.6) + 's';
         piece.style.animationDelay = (Math.random() * 0.5) + 's';
-        var size = 5 + Math.random() * 6;
-        piece.style.width = size + 'px';
-        piece.style.height = size + 'px';
-        piece.style.background = colors[Math.floor(Math.random() * colors.length)];
-        piece.style.borderRadius = Math.random() > 0.5 ? '50%' : '3px';
+
+        if (Math.random() < 0.4){
+          piece.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+          piece.style.fontSize = (0.85 + Math.random() * 0.7) + 'rem';
+        } else {
+          var size = 5 + Math.random() * 6;
+          piece.style.width = size + 'px';
+          piece.style.height = size + 'px';
+          piece.style.background = colors[Math.floor(Math.random() * colors.length)];
+          piece.style.borderRadius = Math.random() > 0.5 ? '50%' : '3px';
+        }
 
         document.body.appendChild(piece);
         setTimeout(function(){ piece.remove(); }, 4500);
