@@ -422,7 +422,7 @@
 
   <div class="hud">
     <p class="hint safe-pad show" id="hintDoor">Preparando la escena…</p>
-    <p class="hint safe-pad" id="hintEnvelope">Toca el sobre</p>
+    <p class="hint safe-pad" id="hintEnvelope">Elige un sobre · da igual cuál, todos dicen lo mismo</p>
 
     <div class="letter-overlay" id="letterOverlay">
       <div class="letter-card">
@@ -584,7 +584,7 @@ scene.background = new THREE.Color(0x0d0a17);
 scene.fog = new THREE.FogExp2(0x0d0a17, 0.11);
 
 var camera = new THREE.PerspectiveCamera(36, 1, 0.1, 100);
-var camBase = new THREE.Vector3(0, 0.05, 5.4);
+var camBase = new THREE.Vector3(0, 0.05, 5.9);
 camera.position.copy(camBase);
 camera.lookAt(0, 0, 0);
 
@@ -622,6 +622,47 @@ ground.position.y = -1.25;
 ground.receiveShadow = true;
 scene.add(ground);
 
+/* ---- pared pintada ---- */
+function makeWallTexture(){
+  var w = 512, h = 512;
+  var c = document.createElement('canvas');
+  c.width = w; c.height = h;
+  var ctx = c.getContext('2d');
+  var grad = ctx.createLinearGradient(0, 0, 0, h);
+  grad.addColorStop(0, '#372a52');
+  grad.addColorStop(0.55, '#241a3d');
+  grad.addColorStop(1, '#180f2c');
+  ctx.fillStyle = grad;
+  ctx.fillRect(0, 0, w, h);
+
+  for (var k = 0; k < 5000; k++){
+    var v = Math.random();
+    ctx.fillStyle = v > 0.5 ? 'rgba(255,255,255,0.025)' : 'rgba(0,0,0,0.035)';
+    ctx.fillRect(Math.random()*w, Math.random()*h, 1.4, 1.4);
+  }
+
+  for (var s = 0; s < 46; s++){
+    ctx.strokeStyle = 'rgba(255,255,255,0.018)';
+    ctx.lineWidth = 6 + Math.random()*10;
+    ctx.beginPath();
+    var sx = Math.random()*w;
+    ctx.moveTo(sx, 0);
+    ctx.lineTo(sx + (Math.random()*60-30), h);
+    ctx.stroke();
+  }
+
+  var tex = new THREE.CanvasTexture(c);
+  tex.colorSpace = THREE.SRGBColorSpace;
+  return tex;
+}
+
+var wallTex = makeWallTexture();
+var wallMat = new THREE.MeshStandardMaterial({ map: wallTex, roughness: 0.95, metalness: 0.02 });
+var wallMesh = new THREE.Mesh(new THREE.PlaneGeometry(6, 6.5), wallMat);
+wallMesh.position.set(0, 0.3, -0.42);
+wallMesh.receiveShadow = true;
+scene.add(wallMesh);
+
 /* ============================================================
    PUERTA
 ============================================================ */
@@ -644,8 +685,10 @@ var doorwayMesh = new THREE.Mesh(new THREE.BoxGeometry(doorWidth + 0.06, doorHei
 doorwayMesh.position.set(0, -0.05, -0.05);
 scene.add(doorwayMesh);
 
-var doorMat = new THREE.MeshStandardMaterial({ map: woodTex, bumpMap: woodBump, bumpScale: 0.045, roughness: 0.55, metalness: 0.08 });
-var doorSideMat = new THREE.MeshStandardMaterial({ color: 0x241207, roughness: 0.8 });
+var doorPaint = 0x3f8068;
+var doorPaintDark = 0x102821;
+var doorMat = new THREE.MeshStandardMaterial({ bumpMap: woodBump, bumpScale: 0.03, color: doorPaint, roughness: 0.42, metalness: 0.06 });
+var doorSideMat = new THREE.MeshStandardMaterial({ color: doorPaintDark, roughness: 0.55 });
 var doorMesh = new THREE.Mesh(
   new THREE.BoxGeometry(doorWidth, doorHeight, doorThickness),
   [doorSideMat, doorSideMat, doorSideMat, doorSideMat, doorMat, doorMat]
@@ -655,15 +698,15 @@ doorMesh.castShadow = true;
 doorMesh.receiveShadow = true;
 doorRig.add(doorMesh);
 
-var grooveMat = new THREE.MeshStandardMaterial({ map: woodTex, bumpMap: woodBump, bumpScale: 0.045, color: 0x6b4020, roughness: 0.8, metalness: 0.05 });
+var grooveMat = new THREE.MeshStandardMaterial({ bumpMap: woodBump, bumpScale: 0.03, color: doorPaintDark, roughness: 0.7, metalness: 0.05 });
 var grooveMesh = new THREE.Mesh(new THREE.BoxGeometry(doorWidth * 0.68, doorHeight * 0.78, doorThickness * 0.2), grooveMat);
-grooveMesh.position.set(doorWidth / 2, 0, doorThickness / 2 - 0.008);
+grooveMesh.position.set(doorWidth / 2, 0, doorThickness / 2 + 0.006);
 grooveMesh.receiveShadow = true;
 doorRig.add(grooveMesh);
 
-var panelMat = new THREE.MeshStandardMaterial({ map: woodTex, bumpMap: woodBump, bumpScale: 0.045, roughness: 0.5, metalness: 0.08 });
+var panelMat = new THREE.MeshStandardMaterial({ bumpMap: woodBump, bumpScale: 0.03, color: doorPaintDark, roughness: 0.4, metalness: 0.08 });
 var panelMesh = new THREE.Mesh(new THREE.BoxGeometry(doorWidth * 0.6, doorHeight * 0.7, doorThickness * 0.65), panelMat);
-panelMesh.position.set(doorWidth / 2, 0, doorThickness / 2 + 0.028);
+panelMesh.position.set(doorWidth / 2, 0, doorThickness / 2 + 0.045);
 panelMesh.castShadow = true;
 panelMesh.receiveShadow = true;
 doorRig.add(panelMesh);
@@ -702,20 +745,41 @@ envelopeGroup.visible = false;
 envelopeGroup.position.set(0, -2.4, 0.6);
 scene.add(envelopeGroup);
 
+/* tres sobres en abanico para "elegir" — da igual cuál, todos dicen lo mismo */
+var envSlotX = [-0.27, 0, 0.27];
+var envSlotZ = [0.03, 0.09, 0.03];
+var envSlotRot = [-0.16, 0, 0.16];
+var sealColors = [0xd6216f, 0x21a6e6, 0xffb020];
 var envMat = new THREE.MeshStandardMaterial({ map: kraftTex, roughness: 0.85, metalness: 0.02 });
-var envBody = new THREE.Mesh(new THREE.BoxGeometry(envW, envH, envT), envMat);
-envBody.castShadow = true;
-envBody.receiveShadow = true;
-envelopeGroup.add(envBody);
+var envSlots = [];
+var envClickTargets = [];
 
-var sealMat = new THREE.MeshPhysicalMaterial({ color: 0xd6216f, roughness: 0.3, clearcoat: 1, clearcoatRoughness: 0.2, metalness: 0.05 });
-var seal = new THREE.Mesh(new THREE.SphereGeometry(0.075, 20, 14), sealMat);
-seal.scale.set(1, 0.6, 0.55);
-seal.position.set(0, 0.03, envT / 2 + 0.06);
-seal.castShadow = true;
-envelopeGroup.add(seal);
+envSlotX.forEach(function(sx, i){
+  var slot = new THREE.Group();
+  slot.position.set(sx, 0, envSlotZ[i]);
+  slot.rotation.z = envSlotRot[i];
+  slot.userData.index = i;
+  envelopeGroup.add(slot);
 
-/* solapa: triángulo articulado en el borde superior */
+  var body = new THREE.Mesh(new THREE.BoxGeometry(envW, envH, envT), envMat);
+  body.castShadow = true;
+  body.receiveShadow = true;
+  body.userData.index = i;
+  slot.add(body);
+
+  var sealMat = new THREE.MeshPhysicalMaterial({ color: sealColors[i], roughness: 0.3, clearcoat: 1, clearcoatRoughness: 0.2, metalness: 0.05 });
+  var slotSeal = new THREE.Mesh(new THREE.SphereGeometry(0.075, 20, 14), sealMat);
+  slotSeal.scale.set(1, 0.6, 0.55);
+  slotSeal.position.set(0, 0.03, envT / 2 + 0.06);
+  slotSeal.castShadow = true;
+  slotSeal.userData.index = i;
+  slot.add(slotSeal);
+
+  envSlots.push(slot);
+  envClickTargets.push(body, slotSeal);
+});
+
+/* solapa + carta: instancias únicas, se colocan sobre el sobre elegido */
 var flapRig = new THREE.Group();
 flapRig.position.set(0, envH / 2, envT / 2);
 envelopeGroup.add(flapRig);
@@ -734,6 +798,7 @@ var flapMesh = new THREE.Mesh(flapShape, flapMat);
 flapMesh.castShadow = true;
 flapMesh.receiveShadow = true;
 flapRig.add(flapMesh);
+flapRig.visible = false;
 
 /* carta: plano con ligera curvatura */
 var letterW = 0.86, letterH = 1.18;
@@ -753,8 +818,6 @@ letterMesh.position.set(0, 0.02, envT / 2 + 0.015);
 letterMesh.castShadow = true;
 letterMesh.visible = false;
 envelopeGroup.add(letterMesh);
-
-var envClickTargets = [envBody, seal, flapMesh];
 
 /* ============================================================
    CONFETTI (instanced, con profundidad real)
@@ -900,7 +963,7 @@ canvas.addEventListener('pointerdown', function(e){
     if (hits.length) openDoor();
   } else if (stage === 'envelope'){
     var hits2 = castAt(e.clientX, e.clientY, envClickTargets);
-    if (hits2.length) openEnvelope();
+    if (hits2.length) openEnvelope(hits2[0].object.userData.index);
   }
 });
 
@@ -937,16 +1000,49 @@ function revealEnvelope(){
     stage = 'envelope';
     hintEnvelope.classList.add('show');
   }, easeOutBounce);
+
+  envSlots.forEach(function(slot, i){
+    var startY = 0.55 + i * 0.32;
+    var restRot = envSlotRot[i];
+    var startRot = restRot + (Math.random() - 0.5) * 0.4;
+    slot.position.y = startY;
+    slot.rotation.z = startRot;
+    tween(650 + i * 130, function(t){
+      slot.position.y = startY * (1 - t);
+      slot.rotation.z = startRot + (restRot - startRot) * t;
+    }, null, easeOutBack);
+  });
 }
 
 /* ---------------- ABRIR SOBRE ---------------- */
 var letterOverlay = document.getElementById('letterOverlay');
 var sceneCanvas = document.getElementById('scene-canvas');
 
-function openEnvelope(){
+function openEnvelope(chosenIndex){
   if (stage !== 'envelope') return;
   stage = 'transition';
   hintEnvelope.classList.remove('show');
+
+  var chosenX = envSlotX[chosenIndex];
+  var chosenZ = envSlotZ[chosenIndex];
+  var chosenRot = envSlotRot[chosenIndex];
+
+  flapRig.position.set(chosenX, envH / 2, envT / 2 + chosenZ);
+  flapRig.rotation.z = chosenRot;
+  letterMesh.position.set(chosenX, 0.02, envT / 2 + 0.015 + chosenZ);
+  letterMesh.rotation.z = chosenRot;
+  flapRig.visible = true;
+
+  envSlots.forEach(function(slot, i){
+    if (i === chosenIndex) return;
+    var baseZ = envSlotZ[i];
+    tween(450, function(t){
+      slot.position.y = -0.55 * t;
+      slot.position.z = baseZ - 0.3 * t;
+      var s = 1 - 0.3 * t;
+      slot.scale.set(s, s, s);
+    }, null, easeOutCubic);
+  });
 
   tween(700, function(t){
     flapRig.rotation.x = -2.98 * t;
