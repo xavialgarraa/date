@@ -511,17 +511,17 @@
       <div class="letter-card">
         <div class="letter-eyebrow">Correspondencia urgente</div>
         <h1>Querida <span id="nombreTitulo">guapa</span>,</h1>
-        <p>Esto es una carta formal para un asunto completamente informal: quiero invitarte a tomar algo.</p>
-        <p>Nada de planes complicados ni frases de manual de autoayuda — solo buena conversación y una excusa decente para vernos.</p>
-        <p>Firmo esto con la esperanza de un sí. Técnicamente hay un botón para el no, pero no prometo que funcione.</p>
+        <p>Esto es una invitación para que vayamos a tomar un açaí.</p>
+        <p>Un paso más para que la apuesta la acabe ganando yo.</p>
+        <p>Siempre puedes rechazarla dándole al &ldquo;No&rdquo;, pero no prometo que funcione (a mi amigo no se le da muy bien esto de programar).</p>
         <div class="signature">— Con ganas de invitarte</div>
 
         <div class="choice-zone">
           <button id="yesBtn" type="button"><span id="yesLabel">Sí</span></button>
-          <span class="no-anchor" id="noAnchor">No, gracias</span>
+          <span class="no-anchor" id="noAnchor">No</span>
         </div>
       </div>
-      <button id="noBtn" type="button">No, gracias</button>
+      <button id="noBtn" type="button">No</button>
     </div>
 
     <div class="confirm-overlay" id="confirmOverlay">
@@ -897,6 +897,34 @@ letterMesh.castShadow = true;
 letterMesh.visible = false;
 envelopeGroup.add(letterMesh);
 
+/* ---- forma final del avión (la silueta limpia de dardo, para la fase
+   de vuelo una vez terminado el plegado) ---- */
+function makePaperPlaneGeometry(){
+  var w = letterW * 0.62, len = letterH * 0.62;
+  var pts = [
+    [0, len * 0.5, 0.05],
+    [-w * 0.5, -len * 0.42, 0],
+    [-w * 0.09, -len * 0.18, 0.03],
+    [0, -len * 0.5, 0.045],
+    [w * 0.09, -len * 0.18, 0.03],
+    [w * 0.5, -len * 0.42, 0]
+  ];
+  var idx = [0,1,2, 0,2,3, 0,3,4, 0,4,5];
+  var geo = new THREE.BufferGeometry();
+  var flatPos = [];
+  var uvs = [];
+  pts.forEach(function(p){
+    flatPos.push(p[0], p[1], p[2]);
+    uvs.push((p[0] / w) + 0.5, (p[1] / len) + 0.5);
+  });
+  geo.setAttribute('position', new THREE.Float32BufferAttribute(flatPos, 3));
+  geo.setAttribute('uv', new THREE.Float32BufferAttribute(uvs, 2));
+  geo.setIndex(idx);
+  geo.computeVertexNormals();
+  return geo;
+}
+var planeGeo = makePaperPlaneGeometry();
+
 /* ---- avión de papel: la carta se pliega de verdad, panel a panel ----
    dos mitades articuladas en el pliegue central (como la puerta/solapa) */
 var halfW = letterW / 2;
@@ -915,10 +943,68 @@ var panelR = new THREE.Mesh(rightPanelGeo, letterMat);
 panelR.castShadow = true;
 foldPivotR.add(panelR);
 
+/* esquinas superiores: primer pliegue real de un avión de papel — el
+   doblez va en DIAGONAL (de la punta superior a un punto del borde
+   lateral) y es un pliegue plano de 180°, no un giro parcial vertical.
+   Para que la bisagra siga esa diagonal, orientamos el grupo pivote con
+   su eje X alineado a la línea de pliegue (usando su matriz inversa
+   para calcular los vértices en el espacio local correcto). */
+function makeFoldedCorner(hingeFrom, hingeTo, outerPoint){
+  var outerPivot = new THREE.Group();
+  outerPivot.position.copy(hingeFrom);
+
+  var dir = hingeTo.clone().sub(hingeFrom).normalize();
+  outerPivot.rotation.z = Math.atan2(dir.y, dir.x);
+
+  var innerPivot = new THREE.Group();
+  outerPivot.add(innerPivot);
+
+  outerPivot.updateMatrixWorld(true);
+  var inv = new THREE.Matrix4().copy(outerPivot.matrixWorld).invert();
+
+  var lHingeFrom = hingeFrom.clone().applyMatrix4(inv);
+  var lHingeTo = hingeTo.clone().applyMatrix4(inv);
+  var lOuter = outerPoint.clone().applyMatrix4(inv);
+
+  var geo = new THREE.BufferGeometry();
+  var pos = new Float32Array([
+    lHingeFrom.x, lHingeFrom.y, lHingeFrom.z,
+    lHingeTo.x, lHingeTo.y, lHingeTo.z,
+    lOuter.x, lOuter.y, lOuter.z
+  ]);
+  var uv = new Float32Array([0.5, 1, 0.15, 0.6, 0, 1]);
+  geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+  geo.setAttribute('uv', new THREE.BufferAttribute(uv, 2));
+  geo.setIndex([0, 1, 2]);
+  geo.computeVertexNormals();
+
+  var mesh = new THREE.Mesh(geo, letterMat);
+  mesh.castShadow = true;
+  innerPivot.add(mesh);
+
+  return { outerPivot: outerPivot, innerPivot: innerPivot, mesh: mesh };
+}
+
+var cornerTopY = letterH / 2;
+var cornerFoldL = makeFoldedCorner(
+  new THREE.Vector3(0, cornerTopY, 0),
+  new THREE.Vector3(-halfW, cornerTopY - halfW, 0),
+  new THREE.Vector3(-halfW, cornerTopY, 0)
+);
+foldPivotL.add(cornerFoldL.outerPivot);
+
+var cornerFoldR = makeFoldedCorner(
+  new THREE.Vector3(0, cornerTopY, 0),
+  new THREE.Vector3(halfW, cornerTopY - halfW, 0),
+  new THREE.Vector3(halfW, cornerTopY, 0)
+);
+foldPivotR.add(cornerFoldR.outerPivot);
+
 var foldGroup = new THREE.Group();
 foldGroup.add(foldPivotL, foldPivotR);
 foldGroup.visible = false;
 scene.add(foldGroup);
+
 
 /* ============================================================
    CONFETTI (instanced, con profundidad real)
@@ -1063,8 +1149,10 @@ canvas.addEventListener('pointerdown', function(e){
     var hits = castAt(e.clientX, e.clientY, doorClickTargets);
     if (hits.length) openDoor();
   } else if (stage === 'envelope'){
+    var doorHits = castAt(e.clientX, e.clientY, doorClickTargets);
+    if (doorHits.length){ closeDoorAndReset(); return; }
     var hits2 = castAt(e.clientX, e.clientY, envClickTargets);
-    if (hits2.length) openEnvelope(hits2[0].object.userData.index);
+    if (hits2.length) openEnvelope(1);
   }
 });
 
@@ -1114,14 +1202,40 @@ function revealEnvelope(){
       slot.rotation.z = startRot + (restRot - startRot) * t;
     }, null, easeOutBack);
   });
+}
 
-  /* la puerta se cierra sola detrás, dando sensación de haber entrado */
-  setTimeout(function(){
-    var startRotY = doorRig.rotation.y;
-    tween(850, function(t){
-      doorRig.rotation.y = startRotY * (1 - t);
-    }, null, easeInOutCubic);
-  }, 550);
+/* tocar la puerta otra vez (mientras sigue abierta detrás del sobre)
+   la cierra y reinicia toda la experiencia desde el principio */
+function closeDoorAndReset(){
+  if (stage !== 'envelope') return;
+  stage = 'transition';
+  envelopeHud.classList.remove('show');
+
+  tween(450, function(t){
+    envelopeGroup.position.y = -2.4 * t;
+  }, function(){
+    envelopeGroup.visible = false;
+  }, easeInOutCubic);
+
+  var startRotY = doorRig.rotation.y;
+  tween(750, function(t){
+    doorRig.rotation.y = startRotY * (1 - t);
+  }, function(){
+    envSlots.forEach(function(slot, i){
+      slot.position.set(envSlotX[i], 0, envSlotZ[i]);
+      slot.rotation.set(0, 0, envSlotRot[i]);
+      slot.scale.set(1, 1, 1);
+      slot.visible = true;
+    });
+    flapRig.visible = false;
+    flapRig.rotation.set(0, 0, 0);
+    letterMesh.visible = false;
+    envelopeGroup.position.set(0, -2.4, 0.6);
+    envelopeGroup.rotation.set(0, 0, 0);
+
+    stage = 'door';
+    hintDoor.classList.add('show');
+  }, easeInOutCubic);
 }
 
 /* ---------------- ABRIR SOBRE ---------------- */
@@ -1135,13 +1249,15 @@ function openEnvelope(chosenIndex){
 
   var chosenX = envSlotX[chosenIndex];
   var chosenZ = envSlotZ[chosenIndex];
+  var chosenRot = envSlotRot[chosenIndex];
 
   var flapBaseZ = envT / 2 + chosenZ;
   flapRig.position.set(chosenX, envH / 2, flapBaseZ);
-  flapRig.rotation.x = 0;
+  flapRig.rotation.set(0, 0, chosenRot);
   flapMat.map = envSlotTex[chosenIndex];
   flapMat.needsUpdate = true;
   letterMesh.position.set(chosenX, 0.02, envT / 2 + 0.015 + chosenZ);
+  letterMesh.rotation.z = chosenRot;
   flapRig.visible = true;
 
   envSlots.forEach(function(slot, i){
@@ -1215,7 +1331,7 @@ function shuffleAndPick(){
         });
         setTimeout(function(){
           stage = 'envelope';
-          openEnvelope(Math.floor(Math.random() * envSlots.length));
+          openEnvelope(1);
         }, 320);
       }, 260);
     }
@@ -1238,31 +1354,13 @@ var lastDodge = 0;
 var lastNoIndex = -1;
 
 var noVariants = [
-  { label: 'No, gracias',   bg: 'linear-gradient(120deg, #ff5468, #b23a4a)', glow: 'rgba(255,84,104,0.55)' },
+  { label: 'No',            bg: 'linear-gradient(120deg, #ff5468, #b23a4a)', glow: 'rgba(255,84,104,0.55)' },
   { label: 'Ni de coña',    bg: 'linear-gradient(120deg, #7d8aa8, #3f4a63)', glow: 'rgba(125,138,168,0.5)' },
   { label: '¿Segura?',      bg: 'linear-gradient(120deg, #ff5468, #7d8aa8)', glow: 'rgba(255,84,104,0.5)' },
   { label: 'Mejor no',      bg: 'linear-gradient(120deg, #b23a4a, #3f4a63)', glow: 'rgba(178,58,74,0.55)' },
   { label: 'Paso',          bg: 'linear-gradient(120deg, #7d8aa8, #ff5468)', glow: 'rgba(125,138,168,0.5)' },
   { label: 'Casi seguro',   bg: 'linear-gradient(120deg, #3f4a63, #ff5468)', glow: 'rgba(63,74,99,0.55)' }
 ];
-
-var yesVariants = ['Sí', 'Quizás sí', 'Seguro'];
-var yesIndex = 0;
-
-function cycleYesLabel(){
-  yesLabel.classList.add('swap');
-  setTimeout(function(){
-    yesIndex = (yesIndex + 1) % yesVariants.length;
-    yesLabel.textContent = yesVariants[yesIndex];
-    yesLabel.classList.remove('swap');
-  }, 260);
-}
-
-var yesCycleTimer = null;
-function startYesCycle(){
-  if (reduceMotion || yesCycleTimer) return;
-  yesCycleTimer = setInterval(cycleYesLabel, 2300);
-}
 
 function localRect(el){
   var hudRect = hudEl.getBoundingClientRect();
@@ -1287,8 +1385,6 @@ function initNoButton(){
     noBtn.style.top = pos.top + 'px';
     noBtn.classList.add('placed');
   });
-
-  startYesCycle();
 }
 
 var currentNoStyle = noVariants[0];
@@ -1406,7 +1502,7 @@ var confirmTexto = document.getElementById('confirmTexto');
 var waBtn = document.getElementById('waBtn');
 
 var waNumber = '34605886710';
-var waMessage = encodeURIComponent('Jorge, he llegado hasta el final de tu invitación. Ya me puedes decir el plan..');
+var waMessage = encodeURIComponent('https://i.giphy.com/l4GhaVWP17HgvWFOVf.webp');
 var waLink = 'https://wa.me/' + waNumber + '?text=' + waMessage;
 waBtn.href = waLink;
 
@@ -1425,44 +1521,76 @@ function flyPaperPlane(onDone){
   foldGroup.scale.set(1, 1, 1);
   foldPivotL.rotation.y = 0;
   foldPivotR.rotation.y = 0;
+  cornerFoldL.innerPivot.rotation.x = 0;
+  cornerFoldR.innerPivot.rotation.x = 0;
   foldGroup.visible = true;
   letterMesh.visible = false;
 
   var wingFold = 2.7;
 
-  /* fase 1: se dobla por la mitad, como el primer paso de un avión de papel */
-  tween(850, function(t){
-    foldPivotL.rotation.y = -t * wingFold;
-    foldPivotR.rotation.y = t * wingFold;
-    foldGroup.position.y = worldPos.y + Math.sin(t * Math.PI) * 0.05;
+  /* fase 1: se doblan las esquinas superiores hacia el centro —
+     pliegue plano de 180° sobre la diagonal real, el primer paso de
+     un avión de papel, con la hoja aún abierta */
+  tween(700, function(t){
+    cornerFoldL.innerPivot.rotation.x = t * Math.PI;
+    cornerFoldR.innerPivot.rotation.x = t * Math.PI;
   }, function(){
 
-    /* fase 2: las alas se abren a su ángulo de vuelo y despega */
-    var startPos = foldGroup.position.clone();
-
-    tween(2100, function(t){
-      var wingAngle = wingFold - t * 0.6;
-      foldPivotL.rotation.y = -wingAngle;
-      foldPivotR.rotation.y = wingAngle;
-
-      foldGroup.position.x = startPos.x + t * 1.9;
-      foldGroup.position.y = startPos.y + t * 2.1 + Math.sin(t * 10) * 0.02 * (1 - t);
-      foldGroup.position.z = startPos.z + t * 1.5;
-      foldGroup.rotation.x = -0.25 - t * 0.85;
-      foldGroup.rotation.y = t * 2.8;
-      foldGroup.rotation.z = Math.sin(t * 8) * 0.06 * (1 - t) + t * 0.35;
-      var s = 1 - t * 0.55;
-      foldGroup.scale.set(s, s, s);
+    /* fase 2: se dobla la hoja entera por la mitad (las esquinas ya
+       plegadas viajan pegadas a cada mitad) — el plegado real termina aquí */
+    tween(800, function(t){
+      foldPivotL.rotation.y = -t * wingFold;
+      foldPivotR.rotation.y = t * wingFold;
+      foldGroup.position.y = worldPos.y + Math.sin(t * Math.PI) * 0.05;
     }, function(){
+
+      /* con la hoja ya doblada, pasamos a la silueta limpia del avión
+         (la forma "perfecta" original) para que vuele sin artefactos */
+      var handoffPos = foldGroup.position.clone();
       foldGroup.visible = false;
-      envelopeGroup.visible = false;
-      onDone();
+
+      if (letterMesh.parent !== scene) scene.add(letterMesh);
+      letterMesh.geometry = planeGeo;
+      letterMesh.position.copy(handoffPos);
+      letterMesh.rotation.set(0, 0, 0);
+      letterMesh.scale.set(1, 1, 1);
+      letterMesh.visible = true;
+
+      /* fase 3: las alas se abren a su ángulo de vuelo y despega —
+         primero baja hacia el suelo, frena abajo, y luego sube y se va */
+      var startPos = letterMesh.position.clone();
+      var dipDepth = 1.1;
+      var climbTotal = 3.6;
+      var dipPhase = 0.3;
+
+      tween(3400, function(t){
+        var yOffset;
+        if (t < dipPhase){
+          var lt = t / dipPhase;
+          yOffset = -dipDepth * (lt * (2 - lt));
+        } else {
+          var lt = (t - dipPhase) / (1 - dipPhase);
+          yOffset = -dipDepth + (dipDepth + climbTotal) * (lt * lt);
+        }
+
+        letterMesh.position.x = startPos.x + t * 2.3;
+        letterMesh.position.y = startPos.y + yOffset + Math.sin(t * 10) * 0.025 * (1 - t);
+        letterMesh.position.z = startPos.z + t * 1.7;
+        letterMesh.rotation.x = -0.25 - t * 0.9 + (t < dipPhase ? (t / dipPhase) * 0.3 : 0.3 - ((t - dipPhase) / (1 - dipPhase)) * 0.3);
+        letterMesh.rotation.y = t * 3.1;
+        letterMesh.rotation.z = Math.sin(t * 8) * 0.06 * (1 - t) + t * 0.4;
+        var s = 1 - t * 0.55;
+        letterMesh.scale.set(s, s, s);
+      }, function(){
+        letterMesh.visible = false;
+        envelopeGroup.visible = false;
+        onDone();
+      }, easeInOutCubic);
     }, easeInOutCubic);
   }, easeInOutCubic);
 }
 
 yesBtn.addEventListener('click', function(){
-  if (yesCycleTimer){ clearInterval(yesCycleTimer); yesCycleTimer = null; }
   letterOverlay.classList.remove('show');
   sceneCanvas.classList.remove('bg-blur');
   confirmTexto.textContent = 'Va volando hacia mí, ' + nombreFinal + '. Te llevo a WhatsApp para cerrar día y hora 📲';
@@ -1471,9 +1599,10 @@ yesBtn.addEventListener('click', function(){
     confirmOverlay.classList.add('show');
     launchConfetti();
 
+    /* WhatsApp se abre a los 2s (en segundo plano) mientras se ve la confirmación */
     setTimeout(function(){
-      window.location.href = waLink;
-    }, 1600);
+      window.open(waLink, '_blank', 'noopener');
+    }, 2000);
   });
 });
 </script>
