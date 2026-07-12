@@ -1563,7 +1563,7 @@ function flyPaperPlane(onDone){
       var climbTotal = 3.6;
       var dipPhase = 0.3;
 
-      tween(3400, function(t){
+      tween(4800, function(t){
         var yOffset;
         if (t < dipPhase){
           var lt = t / dipPhase;
@@ -1595,14 +1595,14 @@ yesBtn.addEventListener('click', function(){
   sceneCanvas.classList.remove('bg-blur');
   confirmTexto.textContent = 'Va volando hacia mí, ' + nombreFinal + '. Te llevo a WhatsApp para cerrar día y hora 📲';
 
+  /* WhatsApp ya va cargando en segundo plano mientras el avión sigue volando */
+  setTimeout(function(){
+    window.open(waLink, '_blank', 'noopener');
+  }, 2600);
+
   flyPaperPlane(function(){
     confirmOverlay.classList.add('show');
     launchConfetti();
-
-    /* WhatsApp se abre a los 2s (en segundo plano) mientras se ve la confirmación */
-    setTimeout(function(){
-      window.open(waLink, '_blank', 'noopener');
-    }, 2000);
   });
 });
 </script>
