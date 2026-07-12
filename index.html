@@ -825,6 +825,7 @@ var envPaperTints2 = ['#a87a3a', '#c9587e', '#3d7fa0'];
 var sealColors = [0xd6216f, 0x21a6e6, 0xffb020];
 var envSlots = [];
 var envClickTargets = [];
+var envSlotTex = [];
 
 envSlotX.forEach(function(sx, i){
   var slot = new THREE.Group();
@@ -834,7 +835,8 @@ envSlotX.forEach(function(sx, i){
   envelopeGroup.add(slot);
 
   var slotTex = makePaperTexture(envPaperTints[i], envPaperTints2[i]);
-  var slotMat = new THREE.MeshStandardMaterial({ map: slotTex, roughness: 0.85, metalness: 0.02 });
+  envSlotTex.push(slotTex);
+  var slotMat = new THREE.MeshPhysicalMaterial({ map: slotTex, roughness: 0.7, metalness: 0.02, clearcoat: 0.25, clearcoatRoughness: 0.6 });
   var body = new THREE.Mesh(new THREE.BoxGeometry(envW, envH, envT), slotMat);
   body.castShadow = true;
   body.receiveShadow = true;
@@ -842,9 +844,9 @@ envSlotX.forEach(function(sx, i){
   slot.add(body);
 
   var sealMat = new THREE.MeshPhysicalMaterial({ color: sealColors[i], roughness: 0.3, clearcoat: 1, clearcoatRoughness: 0.2, metalness: 0.05 });
-  var slotSeal = new THREE.Mesh(new THREE.SphereGeometry(0.05, 20, 14), sealMat);
+  var slotSeal = new THREE.Mesh(new THREE.SphereGeometry(0.058, 20, 14), sealMat);
   slotSeal.scale.set(1, 0.6, 0.55);
-  slotSeal.position.set(0, 0.02, envT / 2 + 0.04);
+  slotSeal.position.set(0, 0.02, envT / 2 + 0.045);
   slotSeal.castShadow = true;
   slotSeal.userData.index = i;
   slot.add(slotSeal);
@@ -864,10 +866,12 @@ var flapPts = new Float32Array([
    envW / 2, 0, 0,
    0, -envH * 0.62, 0
 ]);
+var flapUvs = new Float32Array([0, 1, 1, 1, 0.5, 1 - 0.62]);
 flapShape.setAttribute('position', new THREE.BufferAttribute(flapPts, 3));
+flapShape.setAttribute('uv', new THREE.BufferAttribute(flapUvs, 2));
 flapShape.setIndex([0, 1, 2]);
 flapShape.computeVertexNormals();
-var flapMat = new THREE.MeshStandardMaterial({ map: kraftTex, roughness: 0.8, side: THREE.DoubleSide });
+var flapMat = new THREE.MeshPhysicalMaterial({ map: kraftTex, roughness: 0.7, clearcoat: 0.25, clearcoatRoughness: 0.6, side: THREE.DoubleSide });
 var flapMesh = new THREE.Mesh(flapShape, flapMat);
 flapMesh.castShadow = true;
 flapMesh.receiveShadow = true;
@@ -893,32 +897,28 @@ letterMesh.castShadow = true;
 letterMesh.visible = false;
 envelopeGroup.add(letterMesh);
 
-/* ---- avión de papel: la carta se pliega en esto al pulsar "Sí" ---- */
-function makePaperPlaneGeometry(){
-  var w = letterW * 0.62, len = letterH * 0.62;
-  var pts = [
-    [0, len * 0.5, 0.05],
-    [-w * 0.5, -len * 0.42, 0],
-    [-w * 0.09, -len * 0.18, 0.03],
-    [0, -len * 0.5, 0.045],
-    [w * 0.09, -len * 0.18, 0.03],
-    [w * 0.5, -len * 0.42, 0]
-  ];
-  var idx = [0,1,2, 0,2,3, 0,3,4, 0,4,5];
-  var geo = new THREE.BufferGeometry();
-  var flatPos = [];
-  var uvs = [];
-  pts.forEach(function(p){
-    flatPos.push(p[0], p[1], p[2]);
-    uvs.push((p[0] / w) + 0.5, (p[1] / len) + 0.5);
-  });
-  geo.setAttribute('position', new THREE.Float32BufferAttribute(flatPos, 3));
-  geo.setAttribute('uv', new THREE.Float32BufferAttribute(uvs, 2));
-  geo.setIndex(idx);
-  geo.computeVertexNormals();
-  return geo;
-}
-var planeGeo = makePaperPlaneGeometry();
+/* ---- avión de papel: la carta se pliega de verdad, panel a panel ----
+   dos mitades articuladas en el pliegue central (como la puerta/solapa) */
+var halfW = letterW / 2;
+var leftPanelGeo = new THREE.PlaneGeometry(halfW, letterH, 4, 8);
+leftPanelGeo.translate(-halfW / 2, 0, 0);
+var rightPanelGeo = new THREE.PlaneGeometry(halfW, letterH, 4, 8);
+rightPanelGeo.translate(halfW / 2, 0, 0);
+
+var foldPivotL = new THREE.Group();
+var panelL = new THREE.Mesh(leftPanelGeo, letterMat);
+panelL.castShadow = true;
+foldPivotL.add(panelL);
+
+var foldPivotR = new THREE.Group();
+var panelR = new THREE.Mesh(rightPanelGeo, letterMat);
+panelR.castShadow = true;
+foldPivotR.add(panelR);
+
+var foldGroup = new THREE.Group();
+foldGroup.add(foldPivotL, foldPivotR);
+foldGroup.visible = false;
+scene.add(foldGroup);
 
 /* ============================================================
    CONFETTI (instanced, con profundidad real)
@@ -1114,6 +1114,14 @@ function revealEnvelope(){
       slot.rotation.z = startRot + (restRot - startRot) * t;
     }, null, easeOutBack);
   });
+
+  /* la puerta se cierra sola detrás, dando sensación de haber entrado */
+  setTimeout(function(){
+    var startRotY = doorRig.rotation.y;
+    tween(850, function(t){
+      doorRig.rotation.y = startRotY * (1 - t);
+    }, null, easeInOutCubic);
+  }, 550);
 }
 
 /* ---------------- ABRIR SOBRE ---------------- */
@@ -1131,6 +1139,8 @@ function openEnvelope(chosenIndex){
   var flapBaseZ = envT / 2 + chosenZ;
   flapRig.position.set(chosenX, envH / 2, flapBaseZ);
   flapRig.rotation.x = 0;
+  flapMat.map = envSlotTex[chosenIndex];
+  flapMat.needsUpdate = true;
   letterMesh.position.set(chosenX, 0.02, envT / 2 + 0.015 + chosenZ);
   flapRig.visible = true;
 
@@ -1406,41 +1416,45 @@ function flyPaperPlane(onDone){
   envelopeGroup.visible = true;
   envSlots.forEach(function(slot){ slot.visible = false; });
   flapRig.visible = false;
-  letterMesh.visible = true;
-  letterMesh.scale.set(1, 1, 1);
-  letterMesh.rotation.y = 0;
 
-  var foldStartPos = letterMesh.position.clone();
-  var foldStartRotX = letterMesh.rotation.x;
+  /* colocamos el grupo de plegado exactamente donde estaba la carta */
+  var worldPos = new THREE.Vector3();
+  letterMesh.getWorldPosition(worldPos);
+  foldGroup.position.copy(worldPos);
+  foldGroup.rotation.set(0, 0, 0);
+  foldGroup.scale.set(1, 1, 1);
+  foldPivotL.rotation.y = 0;
+  foldPivotR.rotation.y = 0;
+  foldGroup.visible = true;
+  letterMesh.visible = false;
 
-  /* fase 1: la carta gira de canto, como si se cerrase un libro —
-     en el punto más fino (de perfil) cambiamos la geometría sin que se note */
-  tween(420, function(t){
-    letterMesh.rotation.y = t * (Math.PI / 2);
-    letterMesh.rotation.z = Math.sin(t * Math.PI) * 0.12;
-    letterMesh.position.y = foldStartPos.y + Math.sin(t * Math.PI) * 0.03;
-    var pinch = 1 - 0.12 * Math.sin(t * Math.PI);
-    letterMesh.scale.set(1, pinch, 1);
+  var wingFold = 2.7;
+
+  /* fase 1: se dobla por la mitad, como el primer paso de un avión de papel */
+  tween(850, function(t){
+    foldPivotL.rotation.y = -t * wingFold;
+    foldPivotR.rotation.y = t * wingFold;
+    foldGroup.position.y = worldPos.y + Math.sin(t * Math.PI) * 0.05;
   }, function(){
-    letterMesh.geometry = planeGeo;
-    letterMesh.rotation.y = Math.PI / 2;
-    letterMesh.rotation.z = 0;
-    letterMesh.scale.set(1, 1, 1);
 
-    var startPos = letterMesh.position.clone();
+    /* fase 2: las alas se abren a su ángulo de vuelo y despega */
+    var startPos = foldGroup.position.clone();
 
-    /* fase 2: sigue girando, se revela como avión y sale volando */
-    tween(1050, function(t){
-      letterMesh.position.x = startPos.x + t * 1.6;
-      letterMesh.position.y = startPos.y + t * 1.9;
-      letterMesh.position.z = startPos.z + t * 1.3;
-      letterMesh.rotation.x = foldStartRotX - t * 1.1;
-      letterMesh.rotation.y = (Math.PI / 2) + t * 3.0;
-      letterMesh.rotation.z = t * 0.6;
-      var s = 1 - t * 0.7;
-      letterMesh.scale.set(s, s, s);
+    tween(2100, function(t){
+      var wingAngle = wingFold - t * 0.6;
+      foldPivotL.rotation.y = -wingAngle;
+      foldPivotR.rotation.y = wingAngle;
+
+      foldGroup.position.x = startPos.x + t * 1.9;
+      foldGroup.position.y = startPos.y + t * 2.1 + Math.sin(t * 10) * 0.02 * (1 - t);
+      foldGroup.position.z = startPos.z + t * 1.5;
+      foldGroup.rotation.x = -0.25 - t * 0.85;
+      foldGroup.rotation.y = t * 2.8;
+      foldGroup.rotation.z = Math.sin(t * 8) * 0.06 * (1 - t) + t * 0.35;
+      var s = 1 - t * 0.55;
+      foldGroup.scale.set(s, s, s);
     }, function(){
-      letterMesh.visible = false;
+      foldGroup.visible = false;
       envelopeGroup.visible = false;
       onDone();
     }, easeInOutCubic);
@@ -1459,7 +1473,7 @@ yesBtn.addEventListener('click', function(){
 
     setTimeout(function(){
       window.location.href = waLink;
-    }, 2200);
+    }, 1600);
   });
 });
 </script>
