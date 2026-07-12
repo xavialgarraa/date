@@ -28,6 +28,8 @@
     --pink: #ff3ec8;
     --cyan: #21e6c1;
     --gold: #ffcc4d;
+    --violet: #8b5cf6;
+    --orange: #ff7a3d;
     --muted: #b7add6;
     --font-display: "Playfair Display", "Georgia", serif;
     --font-body: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
@@ -52,6 +54,7 @@
     align-items: center;
     justify-content: center;
     position: relative;
+    perspective: 1800px;
   }
 
   /* ---------- fondo ambiental (solo visible alrededor del marco en desktop) ---------- */
@@ -91,6 +94,9 @@
     background: var(--panel);
     border-radius: 46px;
     overflow: hidden;
+    transform-style: preserve-3d;
+    transition: transform 0.4s cubic-bezier(.2,.8,.3,1);
+    will-change: transform;
     box-shadow:
       0 40px 90px rgba(0,0,0,0.55),
       0 0 0 10px #050308,
@@ -102,6 +108,7 @@
       max-height: none;
       border-radius: 0;
       box-shadow: none;
+      transform: none !important;
     }
   }
 
@@ -164,67 +171,160 @@
     position: relative;
     width: min(58vw, 230px);
     aspect-ratio: 2 / 3;
-    perspective: 1400px;
+    perspective: 1600px;
+  }
+
+  .door-frame::before{
+    content: '';
+    position: absolute;
+    inset: -9px;
+    border-radius: 14px;
+    background: linear-gradient(160deg, #4a3018, #1c1108 65%, #0d0704);
+    box-shadow: 0 34px 60px rgba(0,0,0,0.55);
+    z-index: -1;
   }
 
   .doorway{
     position: absolute;
     inset: 5px;
     border-radius: 8px;
-    background: linear-gradient(180deg, #0a0712, #1a1128);
-    box-shadow: inset 0 0 50px rgba(0,0,0,0.85);
+    background: linear-gradient(180deg, #060409, #150c1e 55%, #1c1128);
+    box-shadow: inset 0 0 60px rgba(0,0,0,0.9), inset 0 0 2px rgba(0,0,0,0.6);
   }
 
   .doorway .glow{
     position: absolute;
     left: 50%;
-    top: 40%;
-    width: 60%;
-    height: 60%;
+    top: 42%;
+    width: 65%;
+    height: 65%;
     transform: translate(-50%,-50%);
-    background: radial-gradient(circle, rgba(255,62,200,0.35), transparent 70%);
+    background: radial-gradient(circle, rgba(255,62,200,0.4), rgba(139,92,246,0.18) 55%, transparent 75%);
     opacity: 0;
-    transition: opacity 0.6s ease 0.3s;
+    transition: opacity 0.7s ease 0.35s;
+    filter: blur(2px);
   }
 
-  #door.open ~ .glow,
   .door-frame.opened .glow{ opacity: 1; }
+
+  .floor-shadow{
+    position: absolute;
+    left: 50%;
+    bottom: -16px;
+    width: 68%;
+    height: 16px;
+    transform: translateX(-50%) scaleX(1);
+    background: radial-gradient(ellipse, rgba(0,0,0,0.6), transparent 72%);
+    filter: blur(3px);
+    opacity: 0.55;
+    transition: opacity 0.7s ease, transform 0.7s ease;
+  }
+
+  .door-frame.opened .floor-shadow{
+    opacity: 0.85;
+    transform: translateX(-50%) scaleX(1.2);
+  }
 
   .door{
     position: absolute;
     inset: 0;
     transform-style: preserve-3d;
     transform-origin: left center;
-    background: linear-gradient(135deg, var(--wood-light), var(--wood));
-    border-radius: 8px;
-    box-shadow: 0 24px 50px rgba(0,0,0,0.6), inset 0 0 0 2px rgba(255,255,255,0.05);
-    transition: transform 0.85s cubic-bezier(.65,0,.35,1);
+    border-radius: 7px;
     cursor: pointer;
+    transition: transform 0.9s cubic-bezier(.62,0,.32,1);
   }
 
-  .door::before{
+  .door-face{
+    position: absolute;
+    inset: 0;
+    border-radius: 7px;
+    background:
+      repeating-linear-gradient(90deg, rgba(0,0,0,0.12) 0 2px, transparent 2px 30px),
+      repeating-linear-gradient(6deg, rgba(255,255,255,0.06) 0 2px, transparent 2px 46px, rgba(0,0,0,0.08) 46px 48px, transparent 48px 92px),
+      linear-gradient(120deg, #8f5c30 0%, #6b3f1e 45%, #3d230f 100%);
+    box-shadow:
+      0 24px 50px rgba(0,0,0,0.6),
+      inset 0 0 0 2px rgba(0,0,0,0.35),
+      inset 0 2px 4px rgba(255,255,255,0.12);
+    backface-visibility: hidden;
+  }
+
+  .door-face::before{
     content: '';
     position: absolute;
-    inset: 16%;
-    border: 2px solid rgba(0,0,0,0.28);
-    border-radius: 6px;
-    background: linear-gradient(135deg, rgba(255,255,255,0.06), transparent 60%);
+    inset: 15%;
+    border-radius: 5px;
+    box-shadow:
+      inset 2px 3px 5px rgba(255,255,255,0.16),
+      inset -3px -4px 8px rgba(0,0,0,0.55),
+      0 1px 2px rgba(0,0,0,0.3);
   }
 
-  .knob{
+  .door-face::after{
+    content: '';
     position: absolute;
-    right: 14px;
-    top: 50%;
-    width: 13px;
-    height: 13px;
-    border-radius: 50%;
-    background: radial-gradient(circle at 35% 35%, var(--gold), #8a6a1f);
-    box-shadow: 0 0 14px rgba(255,204,77,0.65);
-    transform: translateY(-50%);
+    inset: 0;
+    border-radius: 7px;
+    background: linear-gradient(115deg, transparent 30%, rgba(255,255,255,0.16) 46%, transparent 62%);
+    background-size: 260% 100%;
+    background-position: 120% 0;
+    opacity: 0;
+    animation: doorSheen 2.6s ease 0.6s 1;
   }
 
-  .door.knock{ transform: rotateY(-9deg); transition: transform 0.14s ease-out; }
-  .door.open{ transform: rotateY(-108deg); }
+  @keyframes doorSheen{
+    0%{ opacity: 0; background-position: 120% 0; }
+    15%{ opacity: 0.8; }
+    55%{ opacity: 0.5; background-position: -20% 0; }
+    100%{ opacity: 0; background-position: -20% 0; }
+  }
+
+  .door-edge{
+    position: absolute;
+    top: 0; right: 0; bottom: 0;
+    width: 15px;
+    background: linear-gradient(90deg, #2a1608 0%, #170c05 70%, #0c0603 100%);
+    transform-origin: left center;
+    transform: rotateY(90deg);
+  }
+
+  .hinge{
+    position: absolute;
+    left: -3px;
+    width: 9px;
+    height: 30px;
+    border-radius: 2px;
+    background: linear-gradient(180deg, #e2c27a, #a1792f 55%, #6b4c1c);
+    box-shadow: 0 0 6px rgba(0,0,0,0.5), inset 0 1px 1px rgba(255,255,255,0.4);
+  }
+
+  .hinge.h1{ top: 12%; }
+  .hinge.h2{ top: 74%; }
+
+  .knob-plate{
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    transform: translateY(-50%);
+    background: radial-gradient(circle at 35% 30%, #ffe9a8, #c99a3d 55%, #7a5a1e 100%);
+    box-shadow: 0 3px 6px rgba(0,0,0,0.5), inset 0 1px 2px rgba(255,255,255,0.5);
+  }
+
+  .knob-plate::after{
+    content: '';
+    position: absolute;
+    inset: 6px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 30%, #fff6db, #a17a2b);
+    box-shadow: inset 0 1px 2px rgba(255,255,255,0.6), inset 0 -2px 3px rgba(0,0,0,0.35);
+  }
+
+  .door.knock{ transform: rotateY(-8deg); transition: transform 0.16s ease-out; }
+  .door.open{ transform: rotateY(-112deg); }
 
   /* ================= ESCENA 2: SOBRE ================= */
   #scene-envelope{
@@ -252,8 +352,22 @@
     position: absolute;
     inset: 0;
     border-radius: 12px;
-    background: linear-gradient(160deg, #ece0c4, var(--paper));
-    box-shadow: 0 26px 50px rgba(0,0,0,0.5);
+    background:
+      repeating-linear-gradient(115deg, rgba(255,255,255,0.05) 0 2px, transparent 2px 7px),
+      repeating-linear-gradient(25deg, rgba(0,0,0,0.04) 0 1px, transparent 1px 5px),
+      linear-gradient(160deg, #e8d8a8, #d3b988 55%, #b89760);
+    box-shadow:
+      0 26px 50px rgba(0,0,0,0.5),
+      0 8px 16px rgba(0,0,0,0.35),
+      inset 0 0 0 1px rgba(255,255,255,0.15);
+  }
+
+  .envelope-back::before{
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 12px;
+    background: linear-gradient(160deg, rgba(255,255,255,0.22), transparent 45%);
   }
 
   .paper-peek{
@@ -302,16 +416,19 @@
     left: 50%;
     top: 42%;
     transform: translate(-50%,-50%);
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    background: radial-gradient(circle at 35% 30%, var(--pink), #9c1876);
+    width: 42px;
+    height: 42px;
+    border-radius: 42% 58% 63% 37% / 41% 41% 59% 59%;
+    background: radial-gradient(circle at 32% 26%, #ff7fdc, #d61e88 50%, #7a0f4d 100%);
     display: flex;
     align-items: center;
     justify-content: center;
-    color: #fff;
+    color: rgba(255,255,255,0.92);
     font-size: 1.1rem;
-    box-shadow: 0 8px 18px rgba(255,62,200,0.5);
+    box-shadow:
+      0 8px 18px rgba(154,10,90,0.55),
+      inset 0 -3px 6px rgba(0,0,0,0.4),
+      inset 0 3px 5px rgba(255,255,255,0.3);
     z-index: 3;
     transition: opacity 0.3s ease, transform 0.3s ease;
   }
@@ -329,26 +446,52 @@
     padding-left: max(1.1rem, env(safe-area-inset-left));
     padding-right: max(1.1rem, env(safe-area-inset-right));
     overflow: hidden;
+    perspective: 1400px;
   }
 
   .letter-card{
+    position: relative;
     flex: 1;
     display: flex;
     flex-direction: column;
-    background: linear-gradient(180deg, var(--paper), var(--paper-2));
+    background:
+      repeating-linear-gradient(100deg, rgba(0,0,0,0.015) 0 1px, transparent 1px 3px),
+      repeating-linear-gradient(10deg, rgba(0,0,0,0.02) 0 1px, transparent 1px 4px),
+      linear-gradient(175deg, #faf3e0, var(--paper) 55%, var(--paper-2));
     color: var(--ink);
-    border-radius: 22px;
+    border-radius: 20px;
     padding: 1.5rem 1.35rem 1.2rem;
-    box-shadow: 0 24px 55px rgba(0,0,0,0.45);
+    box-shadow:
+      0 30px 60px rgba(0,0,0,0.5),
+      0 10px 20px rgba(0,0,0,0.35),
+      0 2px 4px rgba(0,0,0,0.25),
+      inset 0 0 0 1px rgba(255,255,255,0.4);
     opacity: 0;
-    transform: translateY(26px);
+    transform: translateY(26px) rotateX(0deg) rotateY(0deg);
+    transform-style: preserve-3d;
     animation: cardRise 0.6s cubic-bezier(.22,1,.36,1) 0.05s forwards;
+    transition: transform 0.25s cubic-bezier(.2,.8,.3,1);
     overflow-y: auto;
     min-height: 0;
+    will-change: transform;
   }
 
+  .letter-card::before{
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 20px;
+    pointer-events: none;
+    background: linear-gradient(100deg, transparent 40%, rgba(255,255,255,0.35) 48%, transparent 56%);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    z-index: 1;
+  }
+
+  .letter-card.tilting::before{ opacity: 1; }
+
   @keyframes cardRise{
-    to{ opacity: 1; transform: translateY(0); }
+    to{ opacity: 1; transform: translateY(0) rotateX(0deg) rotateY(0deg); }
   }
 
   .letter-eyebrow{
@@ -429,22 +572,36 @@
   }
 
   #noBtn{
-    font-size: 0.85rem;
-    padding: 0.65rem 1.3rem;
-    color: rgba(255,255,255,0.75);
-    background: rgba(255,255,255,0.06);
-    border: 1px solid rgba(255,255,255,0.12);
+    font-size: 0.88rem;
+    font-weight: 800;
+    padding: 0.7rem 1.4rem;
+    color: #fff;
+    background: linear-gradient(120deg, var(--violet), var(--pink));
+    box-shadow: 0 10px 24px rgba(139,92,246,0.45);
     position: absolute;
-    z-index: 6;
+    z-index: 8;
     visibility: hidden;
-    transition: left 0.24s cubic-bezier(.2,.9,.3,1.35), top 0.24s cubic-bezier(.2,.9,.3,1.35);
+    white-space: nowrap;
+    transition:
+      left 0.26s cubic-bezier(.2,.9,.3,1.35),
+      top 0.26s cubic-bezier(.2,.9,.3,1.35),
+      background 0.2s ease,
+      box-shadow 0.2s ease;
   }
 
   #noBtn.placed{ visibility: visible; }
 
+  @keyframes dodgePop{
+    0%{ transform: scale(1) rotate(0deg); }
+    40%{ transform: scale(1.18) rotate(-6deg); }
+    100%{ transform: scale(1) rotate(0deg); }
+  }
+
+  #noBtn.dodging{ animation: dodgePop 0.4s cubic-bezier(.3,1.6,.4,1); }
+
   .no-anchor{
-    font-size: 0.85rem;
-    padding: 0.65rem 1.3rem;
+    font-size: 0.88rem;
+    padding: 0.7rem 1.4rem;
     visibility: hidden;
     pointer-events: none;
   }
@@ -452,18 +609,25 @@
   .no-ghost{
     position: absolute;
     border-radius: 999px;
-    border: 1px solid rgba(255,255,255,0.18);
-    background: rgba(255,255,255,0.05);
-    opacity: 0.55;
-    z-index: 5;
+    z-index: 7;
     pointer-events: none;
-    transition: opacity 0.65s ease, transform 0.65s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.88rem;
+    font-weight: 800;
+    color: #fff;
+    white-space: nowrap;
+    opacity: 0.8;
+    filter: blur(0px);
     transform: scale(1);
+    transition: opacity 0.55s ease, transform 0.55s ease, filter 0.55s ease;
   }
 
   .no-ghost.fade{
     opacity: 0;
-    transform: scale(1.18);
+    transform: scale(1.25);
+    filter: blur(2px);
   }
 
   /* ================= ESCENA 4: CONFIRMACIÓN ================= */
@@ -549,8 +713,14 @@
     <section class="scene active safe-pad" id="scene-door">
       <div class="door-frame" id="doorFrame">
         <div class="doorway"><div class="glow"></div></div>
+        <div class="floor-shadow"></div>
         <div class="door" id="door">
-          <div class="knob"></div>
+          <div class="door-face">
+            <div class="hinge h1"></div>
+            <div class="hinge h2"></div>
+            <div class="knob-plate"></div>
+          </div>
+          <div class="door-edge"></div>
         </div>
       </div>
       <p class="hint">Toca la puerta</p>
@@ -607,6 +777,21 @@
   document.getElementById('nombreTitulo').textContent = nombreFinal;
   document.title = '✉️ Una invitación para ' + nombreFinal;
 
+  // --- tilt de cámara sutil sobre todo el marco (solo desktop) ---
+  var phoneFrame = document.querySelector('.phone-frame');
+  var canHoverGlobal = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+  var isDesktopFrame = window.matchMedia('(min-width: 431px)').matches;
+
+  if (!reduceMotion && canHoverGlobal && isDesktopFrame){
+    window.addEventListener('mousemove', function(e){
+      var cx = window.innerWidth / 2;
+      var cy = window.innerHeight / 2;
+      var rotY = ((e.clientX - cx) / cx) * 5;
+      var rotX = ((cy - e.clientY) / cy) * 5;
+      phoneFrame.style.transform = 'rotateX(' + rotX.toFixed(2) + 'deg) rotateY(' + rotY.toFixed(2) + 'deg)';
+    });
+  }
+
   // --- gestor simple de escenas ---
   var scenes = Array.prototype.slice.call(document.querySelectorAll('.scene'));
 
@@ -656,11 +841,24 @@
 
   // ---------------- ESCENA 3: CARTA + BOTÓN ESQUIVO ----------------
   var letterScene = document.getElementById('scene-letter');
+  var letterCard = document.querySelector('.letter-card');
   var noBtn = document.getElementById('noBtn');
   var noAnchor = document.getElementById('noAnchor');
   var yesBtn = document.getElementById('yesBtn');
   var noButtonReady = false;
   var lastDodge = 0;
+  var lastNoIndex = -1;
+
+  var noVariants = [
+    { label: 'No, gracias',        bg: 'linear-gradient(120deg, #8b5cf6, #ff3ec8)', glow: 'rgba(139,92,246,0.55)' },
+    { label: '¿Segura?',           bg: 'linear-gradient(120deg, #21e6c1, #2563eb)', glow: 'rgba(33,230,193,0.55)' },
+    { label: 'Quizás',             bg: 'linear-gradient(120deg, #ffcc4d, #ff7a3d)', glow: 'rgba(255,204,77,0.55)' },
+    { label: 'Casi seguro',        bg: 'linear-gradient(120deg, #ff3ec8, #ffcc4d)', glow: 'rgba(255,62,200,0.55)' },
+    { label: 'Ni de coña',         bg: 'linear-gradient(120deg, #ff7a3d, #8b5cf6)', glow: 'rgba(255,122,61,0.55)' },
+    { label: '¿En serio?',         bg: 'linear-gradient(120deg, #2563eb, #21e6c1)', glow: 'rgba(37,99,235,0.55)' },
+    { label: 'Mejor no',           bg: 'linear-gradient(120deg, #8b5cf6, #21e6c1)', glow: 'rgba(139,92,246,0.55)' },
+    { label: 'Seguro que no',      bg: 'linear-gradient(120deg, #ff3ec8, #8b5cf6)', glow: 'rgba(255,62,200,0.55)' }
+  ];
 
   function localRect(el){
     var sceneRect = letterScene.getBoundingClientRect();
@@ -687,28 +885,46 @@
     });
   }
 
-  function spawnTrail(){
+  function pickVariant(){
+    var idx;
+    do { idx = Math.floor(Math.random() * noVariants.length); } while (idx === lastNoIndex && noVariants.length > 1);
+    lastNoIndex = idx;
+    return noVariants[idx];
+  }
+
+  function spawnTrail(fromX, fromY, toX, toY, label, style, w, h){
     if (reduceMotion) return;
-    var rect = localRect(noBtn);
-    var ghost = document.createElement('span');
-    ghost.className = 'no-ghost';
-    ghost.style.left = rect.left + 'px';
-    ghost.style.top = rect.top + 'px';
-    ghost.style.width = rect.width + 'px';
-    ghost.style.height = rect.height + 'px';
-    letterScene.appendChild(ghost);
+    var steps = 4;
 
-    requestAnimationFrame(function(){
-      ghost.classList.add('fade');
-    });
+    for (var i = 1; i <= steps; i++){
+      (function(i){
+        var t = i / (steps + 1);
+        var gx = fromX + (toX - fromX) * t;
+        var gy = fromY + (toY - fromY) * t;
 
-    setTimeout(function(){ ghost.remove(); }, 700);
+        var ghost = document.createElement('span');
+        ghost.className = 'no-ghost';
+        ghost.textContent = label;
+        ghost.style.left = gx + 'px';
+        ghost.style.top = gy + 'px';
+        ghost.style.width = w + 'px';
+        ghost.style.height = h + 'px';
+        ghost.style.background = style.bg;
+        ghost.style.boxShadow = '0 0 26px ' + style.glow;
+        ghost.style.opacity = (0.78 - i * 0.1).toFixed(2);
+        letterScene.appendChild(ghost);
+
+        requestAnimationFrame(function(){
+          ghost.classList.add('fade');
+        });
+
+        setTimeout(function(){ ghost.remove(); }, 620);
+      })(i);
+    }
   }
 
   function dodge(){
     if (reduceMotion || !noButtonReady) return;
-
-    spawnTrail();
 
     var rect = localRect(noBtn);
     var margin = 12;
@@ -717,13 +933,27 @@
     var newX = margin + Math.random() * (maxX - margin);
     var newY = margin + Math.random() * (maxY - margin);
 
+    spawnTrail(rect.left, rect.top, newX, newY, noBtn.textContent, currentNoStyle, rect.width, rect.height);
+
+    var variant = pickVariant();
+    currentNoStyle = variant;
+    noBtn.textContent = variant.label;
+    noBtn.style.background = variant.bg;
+    noBtn.style.boxShadow = '0 10px 26px ' + variant.glow;
+
     noBtn.style.left = newX + 'px';
     noBtn.style.top = newY + 'px';
+
+    noBtn.classList.remove('dodging');
+    void noBtn.offsetWidth;
+    noBtn.classList.add('dodging');
   }
+
+  var currentNoStyle = noVariants[0];
 
   function maybeDodge(){
     var now = Date.now();
-    if (now - lastDodge < 240) return;
+    if (now - lastDodge < 260) return;
     lastDodge = now;
     dodge();
   }
@@ -737,7 +967,7 @@
     var cy = rect.top + rect.height / 2;
     var dx = e.clientX - cx;
     var dy = e.clientY - cy;
-    if (Math.sqrt(dx * dx + dy * dy) < 85) maybeDodge();
+    if (Math.sqrt(dx * dx + dy * dy) < 95) maybeDodge();
   });
 
   letterScene.addEventListener('touchmove', function(e){
@@ -749,7 +979,7 @@
     var cy = rect.top + rect.height / 2;
     var dx = t.clientX - cx;
     var dy = t.clientY - cy;
-    if (Math.sqrt(dx * dx + dy * dy) < 90) maybeDodge();
+    if (Math.sqrt(dx * dx + dy * dy) < 100) maybeDodge();
   }, { passive: true });
 
   noBtn.addEventListener('touchstart', function(e){
@@ -761,6 +991,28 @@
     e.preventDefault();
     maybeDodge();
   });
+
+  // --- tilt 3D de la carta siguiendo el puntero ---
+  var canHover = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+
+  if (!reduceMotion && canHover && letterCard){
+    var maxTilt = 6;
+
+    letterScene.addEventListener('mousemove', function(e){
+      var rect = letterCard.getBoundingClientRect();
+      var px = (e.clientX - rect.left) / rect.width;
+      var py = (e.clientY - rect.top) / rect.height;
+      var rotY = (px - 0.5) * maxTilt * 2;
+      var rotX = (0.5 - py) * maxTilt * 2;
+      letterCard.style.transform = 'translateY(0) rotateX(' + rotX.toFixed(2) + 'deg) rotateY(' + rotY.toFixed(2) + 'deg)';
+      letterCard.classList.add('tilting');
+    });
+
+    letterScene.addEventListener('mouseleave', function(){
+      letterCard.style.transform = 'translateY(0) rotateX(0deg) rotateY(0deg)';
+      letterCard.classList.remove('tilting');
+    });
+  }
 
   // ---------------- CONFIRMACIÓN ----------------
   var confirmTexto = document.getElementById('confirmTexto');
